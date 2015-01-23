@@ -1,0 +1,2 @@
+/home/anwala/testdir/bin/python /home/anwala/wsdl/projects/timelapse/webshots/timelapseTwitter.py &, timelapseTwitter.py
+/usr/bin/python /home/anwala/wsdl/projects/timelapse/webshots/customCron.py, customCron.py

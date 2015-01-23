@@ -1,0 +1,30 @@
+{
+	"nominationDifferential": 365,
+	"mementoAggregator": "http://mementoweb.org/timemap/link/",
+
+	"maxTimesToRunTME": 2,
+	"maxTimesToRunTSE": 2,
+	"globalBlogName": "blog.tumblr.com",
+	"globalPrefix": "/AbsolutePathToProjectFolderHere/ProjectFolderNameHere",
+
+	"twitterConsumerKey": "",
+	"twitterConsumerSecret": "",
+	"twitterAccessToken": "",
+	"twitterAccessTokenSecret": "",
+
+	"tumblrConsumerKey": "",
+	"tumblrConsumerSecret": "",
+	"tumblrAccessToken": "",
+	"tumblrAccessTokenSecret": "",
+
+	"whatDidItLookLikeTwitterScreenName": "@TwitterScreenName",
+	"whatDidItLookLikeTwitterRequestHashtag": "#whatdiditlooklike",
+
+	"receiversEmail": "yourEmail1@example.com, yourEmail2@example.com",
+	"senderEmail": "yourEmail1@example.com",
+	"mailServer": "exchange.example.com",
+
+	"pythonVirtualEnv1Path": "",
+	"pythonSystemPath": "/usr/bin/python"
+}
+

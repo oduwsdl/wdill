@@ -1,0 +1,26 @@
+1 URL - tested
+    In tumblrUrlsDataFile.txt
+    Unpublished
+2 URL - tested
+    In tumblrUrlsDataFile.txt
+    Published
+3 URL - tested
+    Nominated
+    In tumblrUrlsDataFile.txt
+    Published
+4 URL - tested, but more tests required
+    - If TME publish since URL is still UnPublished and if I publish without checking (duplicate)
+    - If TME does not publish URL, URL is posted to queue, once I approve, this becomes case 2
+    - If TME does publish URL, URL is not posted to queue
+    Nominated
+    In tumblrUrlsDataFile.txt
+    UnPublished
+5 URL - tested, but more tests required
+    - This case cannot happen anymore since TSE writes entries which it publishes into tumblrUrlsDataFile.txt
+    Nominated
+    Not In tumblrUrlsDataFile.txt
+    Published
+6 URL - tested, but more tests required
+    Nominated
+    Not In tumblrUrlsDataFile.txt
+    UnPublished

@@ -1,0 +1,6 @@
+New request
+	URL, ScreenName, datetimeOfTweet, tweetID
+Request posted to queue
+	URL <> acnwala <> datetimeOfTweet <> tweetID <> tumblrPostID <> statusUpdateWhenPublic
+Request posted to queue, gone public
+	URL <> acnwala <> datetimeOfTweet <> tweetID <> tumblrPostID <> statusUpdateWhenPublic <> Public

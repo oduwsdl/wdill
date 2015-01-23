@@ -1,0 +1,6 @@
+URL, [tumblrUploadIDPlaceHolder]: for URL that has not been posted yet
++URL, [tumblrUploadIDPlaceHolder]: for URL which will bypass isPosted() check
+URL, tumblrUploadID, datetimeOfPost: for URL that has been posted
+deprecated:
+	URL, [tumblrUploadIDPlaceHolder], screen_name, tweet_id: for URL referred by screen_name on twitter not posted yet
+	URL, [tumblrUploadIDPlaceHolder], screen_name, tweet_id, tumblrUploadID: for URL referred by screen_name on twitter (posted)

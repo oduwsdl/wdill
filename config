@@ -1,6 +1,7 @@
 {
 	"nominationDifferential": 365,
-	"mementoAggregator": "http://mementoweb.org/timemap/link/",
+	"mementoAggregator": "http://timetravel.mementoweb.org/timemap/json/",
+	"latentMementoAggregator": "http://mementoproxy.cs.odu.edu/aggr/timemap/link/1/",
 
 	"maxTimesToRunTME": 2,
 	"maxTimesToRunTSE": 2,

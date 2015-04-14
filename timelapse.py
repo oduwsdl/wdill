@@ -113,43 +113,108 @@ def getItemGivenSignatureOld(signatureString, endMarkerString, page):
 
 def getMementosPages(url):
 
+	pages = []
+	url = url.strip()
 	if(len(url)>0):
 
-		pages = []
-		timemapCount = 0
-
-
-		timemapPrefix = getConfigParameters('mementoAggregator') + url
+		firstChoiceAggregator = getConfigParameters('mementoAggregator')
+		timemapPrefix = firstChoiceAggregator + url
 		#timemapPrefix = 'http://mementoproxy.cs.odu.edu/aggr/timemap/link/1/' + url
 
-		while( True ):
+		'''
+			The CS memento aggregator payload format:
+				[memento, ..., memento, timemap1]; timemap1 points to next page
+			The LANL memento aggregator payload format:
+				1. [timemap1, ..., timemapN]; timemapX points to mementos list
+				2. [memento1, ..., mementoN]; for small payloads
 
-			
-			
+			For LANL Aggregator: The reason the link format is used after retrieving the payload
+								 with json format is due to the fact that the underlying code is based
+								 on the link format structure. json format was not always the norm 
+		'''
+
+
+
+		#select an aggregator - start
+		aggregatorSelector = ''
+
+		co = 'curl --silent -I ' + timemapPrefix
+		head = commands.getoutput(co)
+
+		indexOfFirstNewLine = head.find('\n')
+		if( indexOfFirstNewLine > -1 ):
+
+			if( head[:indexOfFirstNewLine].split(' ')[1] != '200' ):
+				firstChoiceAggregator = getConfigParameters('latentMementoAggregator')
+				timemapPrefix = firstChoiceAggregator + url
+
+		if( firstChoiceAggregator.find('cs.odu.edu') > -1 ):
+			aggregatorSelector = 'CS'
+		else:
+			aggregatorSelector = 'LANL'
+
+		print '...using aggregator:', aggregatorSelector
+		#select an aggregator - end
+
+		#CS aggregator
+		if( aggregatorSelector == 'CS' ):
+			while( True ):
+
+				co = 'curl --silent ' + timemapPrefix
+				#print timemapPrefix
+				page = commands.getoutput(co)
+
+				pages.append(page)
+
+				indexOfRelTimemapMarker = page.rfind('>;rel="timemap"')
+
+				if( indexOfRelTimemapMarker == -1 ):
+					break
+				else:
+					#retrieve next timemap for next page of mementos e.g retrieve url from <http://mementoproxy.cs.odu.edu/aggr/timemap/link/10001/http://www.cnn.com>;rel="timemap"
+					i = indexOfRelTimemapMarker -1
+					timemapPrefix = ''
+					while( i > -1 ):
+						if(page[i] != '<'):
+							timemapPrefix = page[i] + timemapPrefix
+						else:
+							break
+						i = i - 1
+		else:
+			#LANL Aggregator
 			co = 'curl --silent ' + timemapPrefix
-			page = commands.getoutput(co)	
-			pages.append(page)
+			#print timemapPrefix
+			page = commands.getoutput(co)
 
-			indexOfRelTimemapMarker = page.rfind('>;rel="timemap"')
+			try:
+				payload = json.loads(page)
 
-			if( indexOfRelTimemapMarker == -1 ):
-				break
-			else:
-				#retrieve next timemap for next page of mementos e.g retrieve url from <http://mementoproxy.cs.odu.edu/aggr/timemap/link/10001/http://www.cnn.com>;rel="timemap"
-				i = indexOfRelTimemapMarker -1
-				timemapPrefix = ''
-				while( i > -1 ):
-					if(page[i] != '<'):
-						timemapPrefix = page[i] + timemapPrefix
-					else:
-						break
-					i = i - 1
+				if 'timemap_index' in payload:
+
+					for timemap in payload['timemap_index']:
+						
+						timemapLink = timemap['uri'].replace('/timemap/json/', '/timemap/link/')
+						co = 'curl --silent ' + timemapLink
+						page = commands.getoutput(co)
+						pages.append(page)
+					
+				elif 'mementos' in payload:
+					
+					timemapLink = payload['timemap_uri']['json_format'].replace('/timemap/json/', '/timemap/link/')
+					co = 'curl --silent ' + timemapLink
+					page = commands.getoutput(co)
+					pages.append(page)
+					
+				
+				
+			except:
+				exc_type, exc_obj, exc_tb = sys.exc_info()
+				fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+				print(fname, exc_tb.tb_lineno, sys.exc_info() )
 
 			
 			
-		return pages
-	else:
-		print "url length = 0"
+	return pages
 
 '''
 	input:canonicalURL

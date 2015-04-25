@@ -8,6 +8,8 @@ import hashlib
 import tldextract
 import urlparse
 import glob
+import json
+import requests
 
 from subprocess import call
 from os import walk
@@ -19,12 +21,58 @@ from getConfig import getConfigParameters
 from sendEmail import sendErrorEmail
 
 
+
 globalPrefix = getConfigParameters('globalPrefix')
 globalMementoUrlDateTimeDelimeter = "*+*+*"
 #deprecated
 #globalDataFileName = '/home/anwala/wsdl/projects/timelapse/webshots/tumblrUrlsDataFile.txt'
 
+'''
+	assumption: entries are delimited by newline
+	format LANL:
+	<http://www.webcitation.org/64ta04WpM>; rel="first memento"; datetime="Mon, 23 Jan 2012 02:01:29 GMT",
+	<http://www.webcitation.org/6ChPDhqw8>; rel="memento"; datetime="Thu, 06 Dec 2012 03:45:27 GMT",
+	<http://www.webcitation.org/6ChPHTKJY>; rel="last memento"; datetime="Thu, 06 Dec 2012 03:46:23 GMT"
+
+	format CS:
+	, <http://www.webcitation.org/64ta04WpM>; rel="first memento"; datetime="Mon, 23 Jan 2012 02:01:29 GMT",
+	, <http://www.webcitation.org/6ChPDhqw8>; rel="memento"; datetime="Thu, 06 Dec 2012 03:45:27 GMT",
+	, <http://www.webcitation.org/6ChPHTKJY>; rel="last memento"; datetime="Thu, 06 Dec 2012 03:46:23 GMT"
+
+'''
 def getItemGivenSignature(page):
+
+	listOfItems = []
+	if( len(page) > 0 ):
+		page = page.splitlines()
+		for line in page:
+			if(line.find('memento";') != -1):
+				#uriRelDateTime: ['<http://www.webcitation.org/64ta04WpM>', ' rel="first memento"', ' datetime="Mon, 23 Jan 2012 02:01:29 GMT",']
+				uriRelDateTime = line.split(';')
+				if( len(uriRelDateTime) > 2 ):
+					if( uriRelDateTime[0].find('://') != -1 ):
+						if( uriRelDateTime[2].find('datetime="') != -1 ):
+
+
+							uri = ''
+							uri = uriRelDateTime[0].split('<')
+							#print uri
+							if( len(uri) > 1 ):
+								uri = uri[1].replace('>', '')
+								uri = uri.strip()
+
+							datetime = ''
+							datetime = uriRelDateTime[2].split('"')
+							if( len(datetime) > 1 ):
+								datetime = datetime[1]
+							
+							if( len(uri) != 0 and len(datetime) != 0 ):
+								#print uri, '---', datetime
+								listOfItems.append(uri + globalMementoUrlDateTimeDelimeter + datetime)
+
+	return listOfItems
+
+def getItemGivenSignatureOld2(page):
 
 	if( len(page) > 0 ):
 		splitPages0 = page.split(', <')
@@ -159,13 +207,17 @@ def getMementosPages(url):
 		#CS aggregator
 		if( aggregatorSelector == 'CS' ):
 			while( True ):
+				#old: co = 'curl --silent ' + timemapPrefix
+				#old: page = commands.getoutput(co)
 
-				co = 'curl --silent ' + timemapPrefix
-				#print timemapPrefix
-				page = commands.getoutput(co)
+				
+				page = ''
+				r = requests.get(timemapPrefix)
+				print 'status code:', r.status_code
+				if( r.status_code == 200 ):
+					page = r.text
 
 				pages.append(page)
-
 				indexOfRelTimemapMarker = page.rfind('>;rel="timemap"')
 
 				if( indexOfRelTimemapMarker == -1 ):
@@ -182,9 +234,13 @@ def getMementosPages(url):
 						i = i - 1
 		else:
 			#LANL Aggregator
-			co = 'curl --silent ' + timemapPrefix
-			#print timemapPrefix
-			page = commands.getoutput(co)
+			#old: co = 'curl --silent ' + timemapPrefix
+			#old: page = commands.getoutput(co)
+
+			page = ''
+			r = requests.get(timemapPrefix)
+			if( r.status_code == 200 ):
+				page = r.text
 
 			try:
 				payload = json.loads(page)
@@ -194,16 +250,24 @@ def getMementosPages(url):
 					for timemap in payload['timemap_index']:
 						
 						timemapLink = timemap['uri'].replace('/timemap/json/', '/timemap/link/')
-						co = 'curl --silent ' + timemapLink
-						page = commands.getoutput(co)
-						pages.append(page)
+						#old: co = 'curl --silent ' + timemapLink
+						#old: page = commands.getoutput(co)
+						#old: pages.append(page)
+						r = requests.get(timemapLink)
+						if( r.status_code == 200 ):
+							pages.append(r.text)
 					
 				elif 'mementos' in payload:
-					
+					#untested block
 					timemapLink = payload['timemap_uri']['json_format'].replace('/timemap/json/', '/timemap/link/')
-					co = 'curl --silent ' + timemapLink
-					page = commands.getoutput(co)
-					pages.append(page)
+					#old: co = 'curl --silent ' + timemapLink
+					#old: page = commands.getoutput(co)
+					#old: pages.append(page)
+
+					print 'timemap:', timemapLink
+					r = requests.get(timemapLink)
+					if( r.status_code == 200 ):
+						pages.append(r.text)
 					
 				
 				
@@ -215,6 +279,7 @@ def getMementosPages(url):
 			
 			
 	return pages
+
 
 '''
 	input:canonicalURL
@@ -465,13 +530,14 @@ def optimizeGifs(folderName):
 
 				newfile = file[:indexOfMarker] + 'Opt' + file[indexOfMarker:]
 				#optimize
-				params = ['gifsicle-static','--lossy=80', '--optimize', '--colors', '160', '--resize-width', '800', '-o', newfile, file]
+				params = ['../gifsicle-static','--lossy=80', '--optimize', '--colors', '160', '--resize-width', '800', '-o', newfile, file]
 				subprocess.check_call(params)
 
 				return newfile
 
 def timelapse(url, screen_name = '', tweetID = ''):
 
+	someThingWentWrongFlag = False
 	if(len(url) > 0):
 		url = url.lower()
 		mementoGIFsPath, folderAlreadyExists = generateFolderNameFromURLUsingHash(url)
@@ -480,7 +546,7 @@ def timelapse(url, screen_name = '', tweetID = ''):
 
 		if( folderAlreadyExists ):
 			print '... folder already exists, exiting'
-			return
+			return False
 
 		#if folder exists exit - end
 
@@ -493,6 +559,7 @@ def timelapse(url, screen_name = '', tweetID = ''):
 				print "...opening urlsFile.txt"
 				urlsFile = open("./" + mementoGIFsPath + "/urlsFile.txt", "w")
 
+				# scrutiny - start
 				print "...getting memento pages"
 				pages = getMementosPages(url)
 				print "...done getting memento pages"
@@ -501,6 +568,7 @@ def timelapse(url, screen_name = '', tweetID = ''):
 				for i in range(0,len(pages)):
 					mementos = getItemGivenSignature(pages[i])
 					mementosList.append(mementos)
+				# scrutiny - end
 
 
 			 	yearUrlDictionary = get1MementoPerYear(mementosList, globalMementoUrlDateTimeDelimeter)
@@ -568,6 +636,9 @@ def timelapse(url, screen_name = '', tweetID = ''):
 					'''
 				else:
 					print '...deleting empty bad result:', possibleFolderNameToDelete
+					#someThingWentWrongFlag = True could mean that the request to the server was not successful,
+					#but could be successful in the future
+					someThingWentWrongFlag = True
 					co = 'rm -r ' + possibleFolderNameToDelete
 					
 					commands.getoutput(co)
@@ -589,19 +660,36 @@ def timelapse(url, screen_name = '', tweetID = ''):
 	else:
 		print "Url length error: Url length must be greater than zero"
 
+	return someThingWentWrongFlag
+
 def main():
 	if len(sys.argv) == 1:
 		print "Usage: ", sys.argv[0] + " url (e.g: " + sys.argv[0] + " http://www.example.com)"
 		return
 	elif len(sys.argv) == 2:
 		timelapse(sys.argv[1])
+
+		'''
+		pages = getMementosPages(sys.argv[1])
+		mementosList = []
+		for i in range(0,len(pages)):
+			mementos = getItemGivenSignature(pages[i])
+			mementosList.append(mementos)
+
+		yearUrlDictionary = get1MementoPerYear(mementosList, globalMementoUrlDateTimeDelimeter)
+		for year, Url in yearUrlDictionary.items():
+			print year, Url
+		'''
+		
+
 	#elif block deprecated
 	#elif len(sys.argv) == 3:
 	#	timelapse(sys.argv[1], sys.argv[2])
 	
-
+#'http://timetravel.mementoweb.org/timemap/link/http://www.timeout.com/london'
 if __name__ == "__main__":
 	main()
+	
 
 
 '''

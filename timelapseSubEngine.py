@@ -421,7 +421,7 @@ def main():
 	if( shouldIRunFlag ):
 		#post to queue, create status update message to modify line in file
 		postToTumblrQueue()
-		#notifyOnPostApproved()
+		notifyOnPostApproved()
 		print('...DONE')
 	else:
 		print('...runCount exceeded')

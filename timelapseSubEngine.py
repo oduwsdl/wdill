@@ -1,7 +1,7 @@
 import os, sys
-import commands
-import urllib2
-import urllib
+import subprocess
+import urllib.request, urllib.error, urllib.parse
+import urllib.request, urllib.parse, urllib.error
 
 import datetime
 from datetime import datetime
@@ -16,13 +16,14 @@ from timelapseRunGateway import checkRunCount
 from timelapse import getCanonicalUrl
 
 from timelapseTwitter import updateStatus
+from timelapseTwitter import updateStatusWithMedia
 from timelapseTwitter import isThisURLWithinNominationDifferential
 
 from common import getHashString
 from common import getFormattedTagURL
 from common import extractBeginAndEndYear
 from common import getLinks
-from common import uploadAnimatedGifToTumblr
+from common import uploadAnimatedGifToSocialMedia
 from common import isPosted
 from common import getPageTitle
 from common import getRandomStatusUpdateMessage
@@ -40,14 +41,14 @@ debugOutputFileName = globalPrefix + 'debugOutputFile.txt'
 
 
 
-def makeStatusUpdateAndNotifyReferrer(twitterStatusUpdateMessage, screen_nameOfUserWhoSuggestedUri, tweet_id, URL, link):
+def makeStatusUpdateAndNotifyReferrer(twitterStatusUpdateMessage, screen_nameOfUserWhoSuggestedUri, tweet_id, URL, link, filename):
 
 	modifyEntryFlag = False
 	twitterStatusUpdateMessage = twitterStatusUpdateMessage.strip()
 	if( len(twitterStatusUpdateMessage) > 0 ):
 		try:
 			
-			print '...status update:', twitterStatusUpdateMessage.strip() + '\n#memento'
+			print('...status update:', twitterStatusUpdateMessage.strip() + '\n#memento')
 			#MOD
 			updateStatus(twitterStatusUpdateMessage.strip() + '\n#memento')
 			
@@ -55,7 +56,7 @@ def makeStatusUpdateAndNotifyReferrer(twitterStatusUpdateMessage, screen_nameOfU
 		except:
 			exc_type, exc_obj, exc_tb = sys.exc_info()
 			fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-			print(fname, exc_tb.tb_lineno, sys.exc_info() )
+			print((fname, exc_tb.tb_lineno, sys.exc_info() ))
 
 			debugOutputFile = open(debugOutputFileName, 'w')
 			debugOutputFile.write('status update message: ' + twitterStatusUpdateMessage + '\n')
@@ -65,7 +66,7 @@ def makeStatusUpdateAndNotifyReferrer(twitterStatusUpdateMessage, screen_nameOfU
 			sendErrorEmail( str(errorMessage) )
 	
 
-		print "...sending " + screen_nameOfUserWhoSuggestedUri + " direct message"
+		print("...sending " + screen_nameOfUserWhoSuggestedUri + " direct message")
 
 	screen_nameOfUserWhoSuggestedUri = screen_nameOfUserWhoSuggestedUri.strip()
 	tweet_id = tweet_id.strip()
@@ -85,14 +86,14 @@ def makeStatusUpdateAndNotifyReferrer(twitterStatusUpdateMessage, screen_nameOfU
 
 			notificationMessage = ' ' + getCanonicalUrl(URL) + ' (' + pageTitle + ') has been posted: ' + link
 			
-			print '...status notification', notificationMessage
+			print('...status notification', notificationMessage)
 			#MOD
-			updateStatus(statusUpdateString=notificationMessage, screen_name=screen_nameOfUserWhoSuggestedUri, tweet_id=tweet_id)
+			updateStatusWithMedia(statusUpdateString=notificationMessage, screen_name=screen_nameOfUserWhoSuggestedUri, tweet_id=tweet_id, filename=filename)
 			modifyEntryFlag = True
 		except:
 			exc_type, exc_obj, exc_tb = sys.exc_info()
 			fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-			print(fname, exc_tb.tb_lineno, sys.exc_info() )
+			print((fname, exc_tb.tb_lineno, sys.exc_info() ))
 
 			debugOutputFile = open(debugOutputFileName, 'w')
 			debugOutputFile.write('status update message: ' + twitterStatusUpdateMessage + '\n')
@@ -105,7 +106,7 @@ def makeStatusUpdateAndNotifyReferrer(twitterStatusUpdateMessage, screen_nameOfU
 
 def postToTumblrQueue():
 
-	print '...post to queue called'
+	print('...post to queue called')
 
 	#get new items to post:
 	nominationTuples = []
@@ -116,12 +117,12 @@ def postToTumblrQueue():
 	except:
 		exc_type, exc_obj, exc_tb = sys.exc_info()
 		fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-		print(fname, exc_tb.tb_lineno, sys.exc_info() )
+		print((fname, exc_tb.tb_lineno, sys.exc_info() ))
 		nominationsFile.close()
 		return
 
 
-	print "read lines: ", len(nominationTuples)
+	print("read lines: ", len(nominationTuples))
 
 	if( len(nominationTuples) > 0):
 
@@ -131,7 +132,7 @@ def postToTumblrQueue():
 
 		for i in range(0,len(nominationTuples)):
 			nominationData = nominationTuples[i].split(' <> ')
-			print '...nominationData:',nominationData
+			print('...nominationData:',nominationData)
 			'''
 			0: URL
 			1: SCREEN-NAME
@@ -155,7 +156,7 @@ def postToTumblrQueue():
 				
 				#check if this post has been made already - start
 				
-				print '...checking if post has been made already'
+				print('...checking if post has been made already')
 				
 				#CAUTION - start
 				#check not required since timelapseTwitter.py runs before timelapseSubEngine.py
@@ -177,8 +178,8 @@ def postToTumblrQueue():
 
 					#folderName is hash
 					folderName = getHashString(canonicalURL)
-					print '...hashFolderName:', folderName
-					postID, beginYear, endYear  = uploadAnimatedGifToTumblr(folderName, URL)
+					print('...hashFolderName:', folderName)
+					postID, beginYear, endYear  = uploadAnimatedGifToSocialMedia(folderName, URL)
 
 					#print 'folderName', folderName
 					#postID = 123
@@ -204,7 +205,7 @@ def postToTumblrQueue():
 						pageTitle = pageTitle[0:39]
 						pageTitle = pageTitle + '...'
 					twitterStatusUpdateMessage = getRandomStatusUpdateMessage(canonicalURL, pageTitle, beginYear, endYear, link)
-					print '...status update message when public: ', twitterStatusUpdateMessage
+					print('...status update message when public: ', twitterStatusUpdateMessage)
 
 				else:
 					#this URL is already public probably due to TME, so notify referrer and trick notify notifyOnPostApproved() by adding public so it will skip this entry
@@ -231,7 +232,7 @@ def postToTumblrQueue():
 
 			#modify input lines with new data due to post on queue
 
-			for index, postDataArray in dictionaryOfLinesToModify.items():
+			for index, postDataArray in list(dictionaryOfLinesToModify.items()):
 				postID = str(postDataArray[0])
 				twitterStatusUpdateMessageWhenPublic = postDataArray[1]
 				nominationTuples[index] = nominationTuples[index].strip() + ' <> ' + postID + ' <> ' + twitterStatusUpdateMessageWhenPublic + '\n'
@@ -247,13 +248,13 @@ def postToTumblrQueue():
 			except:
 				exc_type, exc_obj, exc_tb = sys.exc_info()
 				fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-				print(fname, exc_tb.tb_lineno, sys.exc_info() )
+				print((fname, exc_tb.tb_lineno, sys.exc_info() ))
 				nominationsFile.close()
 				return
 
 def notifyOnPostApproved():
 
-	print '...notify called'
+	print('...notify called')
 
 	nominationTuples = []
 	try:
@@ -263,11 +264,11 @@ def notifyOnPostApproved():
 	except:
 		exc_type, exc_obj, exc_tb = sys.exc_info()
 		fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-		print(fname, exc_tb.tb_lineno, sys.exc_info() )
+		print((fname, exc_tb.tb_lineno, sys.exc_info() ))
 		nominationsFile.close()
 		return
 
-	print "read lines: ", len(nominationTuples)
+	print("read lines: ", len(nominationTuples))
 	if( len(nominationTuples) > 0):
 
 		
@@ -298,10 +299,11 @@ def notifyOnPostApproved():
 				canonicalURL = getCanonicalUrl(URL)
 
 				formattedTag = getFormattedTagURL(canonicalURL)
+				folderName = ''
 
 				#TAG-MODIFICATION-ZONE
 				link = 'http://'+globalBlogName+'/tagged/'+ formattedTag
-				print '...checking for public status URL/canonicalURL:', URL, canonicalURL
+				print('...checking for public status URL/canonicalURL:', URL, canonicalURL)
 
 				
 				isPostedFlag = isPosted(formattedTag)
@@ -327,7 +329,7 @@ def notifyOnPostApproved():
 					if( datePostedFromTumblr >= tweetDateTime ):
 						postDateTimeIsGreaterThanTweetDateTimeFlag = True
 					else:
-						print '...course correction, this post hasn\'t gone public, but a public sibling'
+						print('...course correction, this post hasn\'t gone public, but a public sibling')
 
 					#does the tweet datetime predate the post datetime - end
 
@@ -336,7 +338,7 @@ def notifyOnPostApproved():
 						#get new post ID - start
 
 						postID = str( getPostID(getFormattedTagURL(canonicalURL)) )
-						print '...getting new postID', postID
+						print('...getting new postID', postID)
 						#get new post ID - end
 						
 
@@ -346,7 +348,10 @@ def notifyOnPostApproved():
 						tweetID = nominationData[3].strip()
 						statusUpdateMessage = nominationData[5].strip()
 						
-						modifyEntryFlag = makeStatusUpdateAndNotifyReferrer(statusUpdateMessage, screenNameOfUserWhoSuggestedURI, tweetID, URL, link)
+						folderName = getHashString(canonicalURL)
+						filename = './'+folderName+'/'+folderName+'OptDelay4.gif'
+
+						modifyEntryFlag = makeStatusUpdateAndNotifyReferrer(statusUpdateMessage, screenNameOfUserWhoSuggestedURI, tweetID, URL, link, filename)
 
 						#if notification to referrer went well, modify entry in file
 						
@@ -362,16 +367,16 @@ def notifyOnPostApproved():
 							#get folderName - start
 								
 							folderName = getHashString(canonicalURL)
-							print '...hashFolderName:', folderName
+							print('...hashFolderName:', folderName)
 
 							#get folderName - end
 
 							nowFolderAppend = '_' + nowFolderAppend
 							
-							print '...renaming', folderName + nowFolderAppend
+							print('...renaming', folderName + nowFolderAppend)
 							#MOD
 							os.rename(folderName, folderName + nowFolderAppend)
-							print
+							print()
 
 							#rename folder so as to permit renomination - end
 
@@ -389,7 +394,7 @@ def notifyOnPostApproved():
 
 				for index in indicesOfLinesToModify:
 					#write to store file, then delete
-					print '...moving entry to store', nominationTuples[index]
+					print('...moving entry to store', nominationTuples[index])
 					inputStoreFile.write(nominationTuples[index].strip() + ' <> ' + 'PUBLIC' + '\n')
 					
 					#mark for removal
@@ -407,7 +412,7 @@ def notifyOnPostApproved():
 			except:
 				exc_type, exc_obj, exc_tb = sys.exc_info()
 				fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-				print(fname, exc_tb.tb_lineno, sys.exc_info() )
+				print((fname, exc_tb.tb_lineno, sys.exc_info() ))
 
 def main():
 
@@ -416,10 +421,10 @@ def main():
 	if( shouldIRunFlag ):
 		#post to queue, create status update message to modify line in file
 		postToTumblrQueue()
-		notifyOnPostApproved()
-		print '...DONE'
+		#notifyOnPostApproved()
+		print('...DONE')
 	else:
-		print '...runCount exceeded'
+		print('...runCount exceeded')
 	
 	
 	

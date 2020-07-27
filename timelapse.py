@@ -1,4 +1,4 @@
-import commands
+import subprocess
 import time
 import datetime
 import sys
@@ -6,7 +6,7 @@ import argparse, os
 import subprocess
 import hashlib
 import tldextract
-import urlparse
+import urllib.parse
 import glob
 import json
 import requests
@@ -151,7 +151,7 @@ def getItemGivenSignatureOld(signatureString, endMarkerString, page):
 				url = url.strip()
 				#date = date.strip()
 				
-				print "date2: ", date2
+				print("date2: ", date2)
 				listOfItems.append(url + globalMementoUrlDateTimeDelimeter + date2)
 			else :
 					break
@@ -187,13 +187,13 @@ def getMementosPages(url):
 		aggregatorSelector = ''
 
 		co = 'curl --silent -I ' + timemapPrefix
-		head = commands.getoutput(co)
+		head = subprocess.getoutput(co)
 
 		indexOfFirstNewLine = head.find('\n')
 		if( indexOfFirstNewLine > -1 ):
 
 			if( head[:indexOfFirstNewLine].split(' ')[1] != '200' ):
-				firstChoiceAggregator = getConfigParameters('latentMementoAggregator')
+				firstChoiceAggregator = getConfigParameters('mementoAggregator')
 				timemapPrefix = firstChoiceAggregator + url
 
 		if( firstChoiceAggregator.find('cs.odu.edu') > -1 ):
@@ -201,7 +201,7 @@ def getMementosPages(url):
 		else:
 			aggregatorSelector = 'LANL'
 
-		print '...using aggregator:', aggregatorSelector
+		print('...using aggregator:', aggregatorSelector)
 		#select an aggregator - end
 
 		#CS aggregator
@@ -213,7 +213,7 @@ def getMementosPages(url):
 				
 				page = ''
 				r = requests.get(timemapPrefix)
-				print 'status code:', r.status_code
+				print('status code:', r.status_code)
 				if( r.status_code == 200 ):
 					page = r.text
 
@@ -264,7 +264,7 @@ def getMementosPages(url):
 					#old: page = commands.getoutput(co)
 					#old: pages.append(page)
 
-					print 'timemap:', timemapLink
+					print('timemap:', timemapLink)
 					r = requests.get(timemapLink)
 					if( r.status_code == 200 ):
 						pages.append(r.text)
@@ -274,7 +274,7 @@ def getMementosPages(url):
 			except:
 				exc_type, exc_obj, exc_tb = sys.exc_info()
 				fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-				print(fname, exc_tb.tb_lineno, sys.exc_info() )
+				print((fname, exc_tb.tb_lineno, sys.exc_info() ))
 
 			
 			
@@ -315,7 +315,7 @@ def get1MementoPerYear(mementos, delimeterCharacter):
 						yearUrlDictionary[date.tm_year] = urlAndDateTime[0]
 				except:
 					date = errorCount
-					print "date exception, ", urlAndDateTime[1]
+					print("date exception, ", urlAndDateTime[1])
 					#print " 0:", urlAndDateTime[0]
 					#print " 1:", urlAndDateTime[1]
 					#print " 2:", urlAndDateTime[2]
@@ -329,7 +329,7 @@ def get1MementoPerYear(mementos, delimeterCharacter):
 
 
 	else:
-		print "mementos list length = 0"
+		print("mementos list length = 0")
 
 def getCanonicalUrl(URL):
 
@@ -345,7 +345,7 @@ def getCanonicalUrl(URL):
         canonicalURL = handyurl.parse(URL)
         canonicalURL = canonicalize(canonicalURL).getURLString()
 
-        scheme, netloc, path, params, query, fragment = urlparse.urlparse(canonicalURL)
+        scheme, netloc, path, params, query, fragment = urllib.parse.urlparse(canonicalURL)
 
     returnValue = netloc + path + params + query + fragment
 
@@ -480,8 +480,10 @@ def takeScreenshots(dictionaryOfItems, folderName, urlsFile, resolutionX = '1024
 
 			urlValue = dictionaryOfItems[yearKey]
 			#yearValue = extractYearFromUrl(urlValue)
-			call(['phantomjs', phantomscript, urlValue, resolutionX, resolutionY, folderName, str(yearKey)])
-			
+			#call(['phantomjs', phantomscript, urlValue, resolutionX, resolutionY, folderName, str(yearKey)])
+			puppeteerScript = os.path.join(os.path.dirname(__file__), globalPrefix+'takeScreenshot.js')
+			nodeSystemPath = getConfigParameters('nodeSystemPath')
+			call([nodeSystemPath, puppeteerScript, urlValue, resolutionX, resolutionY, folderName, str(yearKey)])
 			
 			urlsFile.write(str(yearKey) + ': ' + urlValue + '\n')
 
@@ -535,6 +537,12 @@ def optimizeGifs(folderName):
 
 				return newfile
 
+def generateMP4(folderName, beginYear):
+	if(len(folderName) > 0):
+		os.chdir(folderName)
+		params = ['ffmpeg', '-r', '1', '-f', 'image2', '-start_number', beginYear '-i', '%d.png', '-vcodec', 'libx264', '-crf', '25',  '-pix_fmt', 'yuv444p', folderName+'.mp4']
+		subprocess.check_call(params)
+
 def timelapse(url, screen_name = '', tweetID = ''):
 
 	someThingWentWrongFlag = False
@@ -545,7 +553,7 @@ def timelapse(url, screen_name = '', tweetID = ''):
 		#if folder exists exit - start
 
 		if( folderAlreadyExists ):
-			print '... folder already exists, exiting'
+			print('... folder already exists, exiting')
 			return False
 
 		#if folder exists exit - end
@@ -556,13 +564,13 @@ def timelapse(url, screen_name = '', tweetID = ''):
 
 				possibleFolderNameToDelete = os.getcwd() + '/' + mementoGIFsPath + '/'
 
-				print "...opening urlsFile.txt"
+				print("...opening urlsFile.txt")
 				urlsFile = open("./" + mementoGIFsPath + "/urlsFile.txt", "w")
 
 				# scrutiny - start
-				print "...getting memento pages"
+				print("...getting memento pages")
 				pages = getMementosPages(url)
-				print "...done getting memento pages"
+				print("...done getting memento pages")
 				
 				mementosList = []
 				for i in range(0,len(pages)):
@@ -571,45 +579,48 @@ def timelapse(url, screen_name = '', tweetID = ''):
 				# scrutiny - end
 
 
-			 	yearUrlDictionary = get1MementoPerYear(mementosList, globalMementoUrlDateTimeDelimeter)
+				yearUrlDictionary = get1MementoPerYear(mementosList, globalMementoUrlDateTimeDelimeter)
 
-			 	#sort by date
-			 	#this does not seem to return dictionary, list instead
-			 	sortedKeysOfYearUrlDictionary = sorted(yearUrlDictionary.keys())
-			 	
-			 	
-			 	lengthOfYearUrlDictionary = len(yearUrlDictionary)
-			 	if( lengthOfYearUrlDictionary > 0 ):
+				#sort by date
+				#this does not seem to return dictionary, list instead
+				sortedKeysOfYearUrlDictionary = sorted(yearUrlDictionary.keys())
+				
+				
+				lengthOfYearUrlDictionary = len(yearUrlDictionary)
+				if( lengthOfYearUrlDictionary > 0 ):
 
-			 		beginYear = str(sortedKeysOfYearUrlDictionary[0]) 
-			 		endYear = str(sortedKeysOfYearUrlDictionary[len(sortedKeysOfYearUrlDictionary)-1])
-			 		 
-			 		urlsFile.write("What Did " + url + " Look Like From " + beginYear + " To " + endYear + "?\n\n")
+					beginYear = str(sortedKeysOfYearUrlDictionary[0]) 
+					endYear = str(sortedKeysOfYearUrlDictionary[len(sortedKeysOfYearUrlDictionary)-1])
+					
+					urlsFile.write("What Did " + url + " Look Like From " + beginYear + " To " + endYear + "?\n\n")
 					urlsFile.write("Links" + ":\n")
-				 	
+					
 
 
-			 	#print len(yearUrlDictionary), " years "
+				#print len(yearUrlDictionary), " years "
 
-			 	#for year,url in yearUrlDictionary.items():
-			 	#	print year, ",", url
+				#for year,url in yearUrlDictionary.items():
+				#	print year, ",", url
 
-			 	
-				print "...taking screenshots"
+			
+				print("...taking screenshots")
 				result = takeScreenshots (yearUrlDictionary, mementoGIFsPath, urlsFile)
-				print "...done taking screenshots"
+				print("...done taking screenshots")
 
-				print "...done opening urlsFile.txt"
+				print("...done opening urlsFile.txt")
 				urlsFile.close()
 
 				
 				if(result):
-					print "...labelling screenshots and converting to gif"
+					print("...labelling screenshots and converting to gif")
 					convertToAnimatedGIF(mementoGIFsPath)
-					print "...done labelling screenshots and converting to gif"
-					print "...optimizing Gifs"
+					print("...done labelling screenshots and converting to gif")
+					print("...optimizing Gifs")
 					optimizeGifs(mementoGIFsPath)
-					print "...done optimizing Gifs"
+					print("...done optimizing Gifs")
+					print("...creating mp4 file")
+					generateMP4(mementoGIFsPath, beginYear)
+					print("...done creating mp4 file")
 
 					'''
 					#this block has been deprecated - start
@@ -635,13 +646,13 @@ def timelapse(url, screen_name = '', tweetID = ''):
 					#this block has been deprecated - end
 					'''
 				else:
-					print '...deleting empty bad result:', possibleFolderNameToDelete
+					print('...deleting empty bad result:', possibleFolderNameToDelete)
 					#someThingWentWrongFlag = True could mean that the request to the server was not successful,
 					#but could be successful in the future
 					someThingWentWrongFlag = True
 					co = 'rm -r ' + possibleFolderNameToDelete
 					
-					commands.getoutput(co)
+					subprocess.getoutput(co)
 
 					
 			
@@ -650,7 +661,7 @@ def timelapse(url, screen_name = '', tweetID = ''):
 			except:
 				exc_type, exc_obj, exc_tb = sys.exc_info()
 				fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-				print(fname, exc_tb.tb_lineno, sys.exc_info() )
+				print((fname, exc_tb.tb_lineno, sys.exc_info() ))
 				#urlsFile.close()
 				#tumblrDataFile.close()
 
@@ -658,13 +669,13 @@ def timelapse(url, screen_name = '', tweetID = ''):
 				#mod1
 				sendErrorEmail( str(errorMessage) )
 	else:
-		print "Url length error: Url length must be greater than zero"
+		print("Url length error: Url length must be greater than zero")
 
 	return someThingWentWrongFlag
 
 def main():
 	if len(sys.argv) == 1:
-		print "Usage: ", sys.argv[0] + " url (e.g: " + sys.argv[0] + " http://www.example.com)"
+		print("Usage: ", sys.argv[0] + " url (e.g: " + sys.argv[0] + " http://www.example.com)")
 		return
 	elif len(sys.argv) == 2:
 		timelapse(sys.argv[1])

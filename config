@@ -18,6 +18,9 @@
 	"tumblrAccessToken": "",
 	"tumblrAccessTokenSecret": "",
 
+	"instagramUsername": "",
+	"instagramPassword": "",
+
 	"whatDidItLookLikeTwitterScreenName": "@TwitterScreenName",
 	"whatDidItLookLikeTwitterRequestHashtag": "#whatdiditlooklike",
 
@@ -25,7 +28,8 @@
 	"senderEmail": "yourEmail1@example.com",
 	"mailServer": "exchange.example.com",
 
-	"pythonVirtualEnv1Path": "",
-	"pythonSystemPath": "/usr/bin/python"
+	"pythonVirtualEnv1Path": "/usr/bin/python3",
+	"pythonSystemPath": "/usr/bin/python3",
+	"nodeSystemPath": "/usr/local/bin/node"
 }
 

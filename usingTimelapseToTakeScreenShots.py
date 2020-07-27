@@ -12,11 +12,11 @@ try:
 except:
 	exc_type, exc_obj, exc_tb = sys.exc_info()
 	fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-	print(fname, exc_tb.tb_lineno, sys.exc_info() )
+	print((fname, exc_tb.tb_lineno, sys.exc_info() ))
 	listOfNominatedURLs.close()
 
 
-print "read lines: ", len(nominationTuples)
+print("read lines: ", len(nominationTuples))
 originalPath = os.getcwd()
 
 for i in range(0,len(nominationTuples)):
@@ -33,10 +33,10 @@ for i in range(0,len(nominationTuples)):
 		#tweetID = nomimationData[3].strip()
 
 		os.chdir(originalPath)
-		print "...sending ", URL, " to timelapse to take pictures"
+		print("...sending ", URL, " to timelapse to take pictures")
 		timelapse(URL)
 
-print '...calling timelapseSubEngine.py'
+print('...calling timelapseSubEngine.py')
 #MOD
 os.chdir(originalPath)
 pythonVirtualEnvPath = getConfigParameters('pythonVirtualEnv1Path')

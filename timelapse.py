@@ -540,7 +540,7 @@ def optimizeGifs(folderName):
 def generateMP4(folderName, beginYear):
 	if(len(folderName) > 0):
 		os.chdir(folderName)
-		params = ['ffmpeg', '-r', '1', '-f', 'image2', '-start_number', beginYear '-i', '%d.png', '-vcodec', 'libx264', '-crf', '25',  '-pix_fmt', 'yuv444p', folderName+'.mp4']
+		params = ['ffmpeg', '-r', '1', '-start_number', beginYear '-i', '%d.png', '-s', '864x1080', '-pix_fmt', 'yuv420p', '-vcodec', 'libx264', folderName+'.mp4']
 		subprocess.check_call(params)
 
 def timelapse(url, screen_name = '', tweetID = ''):

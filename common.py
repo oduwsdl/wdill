@@ -153,6 +153,18 @@ def uploadAnimatedGifToSocialMedia(folderName, URL, queueOrPublish='queue'):
 		instagramLink = instagramLink.replace('Instagram Link: ','')
 		'''
 
+		instaScript = os.path.join(os.path.dirname(__file__), globalPrefix+'instagramWithBrowserStack.py.js')
+		username = getConfigParameters('instagramUsername')
+		password = getConfigParameters('instagramPassword')
+		browserStackUserID = getConfigParameters('browserStackUserID')
+		browserStackKey = getConfigParameters('browserStackKey')
+		print("...uploading to Instagram")
+		pythonVirtualEnvPath = getConfigParameters('pythonVirtualEnv1Path')
+		res = subprocess.check_output([pythonVirtualEnvPath, instaScript, username, password, browserStackUserID, browserStackKey, globalPrefix + folderName + '/' + folderName + '.mp4', links])
+		instagramLink = res.decode('utf-8')
+		print(instagramLink)
+		instagramLink = instagramLink.replace('\n',"")
+		instagramLink = instagramLink.replace('Instagram Link: ','')
 		
 		if(len(gifAnimationFilename) > 0):
 			print("...uploading to tumblr")

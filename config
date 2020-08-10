@@ -21,6 +21,9 @@
 	"instagramUsername": "",
 	"instagramPassword": "",
 
+	"browserStackUserID": "",
+	"browserStackKey": "",
+
 	"whatDidItLookLikeTwitterScreenName": "@TwitterScreenName",
 	"whatDidItLookLikeTwitterRequestHashtag": "#whatdiditlooklike",
 

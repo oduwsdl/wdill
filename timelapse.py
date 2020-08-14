@@ -24,6 +24,7 @@ from sendEmail import sendErrorEmail
 
 globalPrefix = getConfigParameters('globalPrefix')
 globalMementoUrlDateTimeDelimeter = "*+*+*"
+globalRequestFilename = "twitter_requests_wdill.txt"
 #deprecated
 #globalDataFileName = '/home/anwala/wsdl/projects/timelapse/webshots/tumblrUrlsDataFile.txt'
 
@@ -298,11 +299,12 @@ def getHash(canonicalURL):
 	return md5hash
 
 #returns a dictionary of <year, url> tuples. Given multiple instances of same year, only first is considered
-def get1MementoPerYear(mementos, delimeterCharacter):
+def get1MementoPerYear(yearUrlDictionary, mementos, delimeterCharacter, numOfURLPosts):
 
 	if( len(mementos)>0 ):
 		errorCount = 1
-		yearUrlDictionary = {}
+		URLYears = []
+		numPostCounter = 0
 
 		for i in range(0, len(mementos)):
 			for meme in mementos[i]:
@@ -311,8 +313,15 @@ def get1MementoPerYear(mementos, delimeterCharacter):
 				#print urlAndDateTime
 				try:
 					date = time.strptime(urlAndDateTime[1], '%a, %d %b %Y %H:%M:%S %Z')
+					if date.tm_year not in URLYears
+						URLYears.append(date.tm_year)
+
 					if date.tm_year not in yearUrlDictionary:
-						yearUrlDictionary[date.tm_year] = urlAndDateTime[0]
+						if numPostCounter == numOfURLPosts:
+							yearUrlDictionary[date.tm_year] = urlAndDateTime[0]
+						else:
+							numPostCounter = numPostCounter + 1
+
 				except:
 					date = errorCount
 					print("date exception, ", urlAndDateTime[1])
@@ -323,13 +332,27 @@ def get1MementoPerYear(mementos, delimeterCharacter):
 					if date not in yearUrlDictionary:
 						yearUrlDictionary[date] = urlAndDateTime[0]
 					errorCount = errorCount + 1
-			
+
+		for year in URLYears:
+			if year not in yearUrlDictionary:
+				yearUrlDictionary = get1MementoPerYear(yearUrlDictionary, mementos, delimiterCharacter, 0)
+				break
+
 			
 		return yearUrlDictionary
 
 
 	else:
 		print("mementos list length = 0")
+
+def getNumOfURLPosts(URL):
+	reqFile = open(globalRequestFilename, "r")
+	counter = 0
+	for entry in reqFile:
+		entryParts = entry.split(" <> ")
+		if entryParts[0] == URL and len(entryParts) > 4:
+			counter = counter + 1
+	return counter
 
 def getCanonicalUrl(URL):
 
@@ -578,8 +601,10 @@ def timelapse(url, screen_name = '', tweetID = ''):
 					mementosList.append(mementos)
 				# scrutiny - end
 
+				numOfURLPosts = getNumOfURLPosts(url)
+				yearUrlDictionary = {}
 
-				yearUrlDictionary = get1MementoPerYear(mementosList, globalMementoUrlDateTimeDelimeter)
+				yearUrlDictionary = get1MementoPerYear(yearUrlDictionary, mementosList, globalMementoUrlDateTimeDelimeter, numOfURLPosts)
 
 				#sort by date
 				#this does not seem to return dictionary, list instead

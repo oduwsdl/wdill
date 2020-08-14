@@ -23,6 +23,7 @@
 
 	"browserStackUserID": "",
 	"browserStackKey": "",
+	"browserStackAppID": "",
 
 	"whatDidItLookLikeTwitterScreenName": "@TwitterScreenName",
 	"whatDidItLookLikeTwitterRequestHashtag": "#whatdiditlooklike",

@@ -9,8 +9,9 @@ import sys
 
 userName = sys.argv[3]
 accessKey = sys.argv[4]
+appID = sys.argv[5]
 
-filePath = sys.argv[5]
+filePath = sys.argv[6]
 postVideo = subprocess.check_output(['curl', '-s', '-u', userName+':'+accessKey, '-X', 'POST', 'https://api-cloud.browserstack.com/app-automate/upload-media', '-F', 'file=@'+filePath])
 mediaLink = postVideo.decode('utf-8')
 res = json.loads(mediaLink)
@@ -19,14 +20,14 @@ mediaLink = res["media_url"]
 desired_caps = {
     "build": "Python Android",
     "device": "Google Pixel 3",
-    "app": "bs://71492def47cec129483abaf555dad19210ec60f9",
+    "app": appID,
     'browserstack.appium_version': '1.9.1',
     "browserstack.uploadMedia": [mediaLink]
 }
 
 username = sys.argv[1]
 password = sys.argv[2]
-caption = sys.argv[6]
+caption = sys.argv[7]
 
 driver = webdriver.Remote("https://" + userName + ":" + accessKey + "@hub-cloud.browserstack.com/wd/hub", desired_caps)
 

@@ -304,9 +304,10 @@ def get1MementoPerYear(yearUrlDictionary, mementos, delimeterCharacter, numOfURL
 	if( len(mementos)>0 ):
 		errorCount = 1
 		URLYears = []
-		numPostCounter = 0
 
 		for i in range(0, len(mementos)):
+			numPostCounter = 0
+			prevMementoYear = 0
 			for meme in mementos[i]:
 
 				urlAndDateTime = meme.split(delimeterCharacter)
@@ -321,6 +322,11 @@ def get1MementoPerYear(yearUrlDictionary, mementos, delimeterCharacter, numOfURL
 							yearUrlDictionary[date.tm_year] = urlAndDateTime[0]
 						else:
 							numPostCounter = numPostCounter + 1
+
+					if prevMementoYear != 0 and date.tm_year != prevMementoYear:
+						numPostCounter = 0
+
+					prevMementoYear = date.tm_year
 
 				except:
 					date = errorCount

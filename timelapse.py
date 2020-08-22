@@ -314,7 +314,7 @@ def get1MementoPerYear(yearUrlDictionary, mementos, delimeterCharacter, numOfURL
 				#print urlAndDateTime
 				try:
 					date = time.strptime(urlAndDateTime[1], '%a, %d %b %Y %H:%M:%S %Z')
-					if date.tm_year not in URLYears
+					if date.tm_year not in URLYears:
 						URLYears.append(date.tm_year)
 
 					if date.tm_year not in yearUrlDictionary:

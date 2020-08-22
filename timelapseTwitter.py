@@ -262,7 +262,7 @@ def updateStatus(statusUpdateString, screen_name = '', tweet_id = ''):
         else:
             api.update_status(statusUpdateString)
 
-def updateStatusWithMedia(statusUpdateString, screen_name = '', tweet_id = '', filename):
+def updateStatusWithMedia(statusUpdateString, filename, screen_name = '', tweet_id = ''):
 
     screen_name = screen_name.strip()
     tweet_id = tweet_id.strip()

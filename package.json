@@ -1,0 +1,8 @@
+{
+  "name": "wdill",
+  "repository": "https://github.com/oduwsdl/wdill",
+  "dependencies": {
+    "async": "*",
+    "puppeteer": "*"
+  }
+}

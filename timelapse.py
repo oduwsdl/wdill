@@ -10,6 +10,7 @@ import urllib.parse
 import glob
 import json
 import requests
+import re
 
 from subprocess import call
 from os import walk
@@ -516,14 +517,38 @@ def takeScreenshots(dictionaryOfItems, folderName, urlsFile, resolutionX = '1024
 			
 			urlsFile.write(str(yearKey) + ': ' + urlValue + '\n')
 
+			imagePath = os.path.join(os.path.dirname(__file__), globalPrefix+folderName+'/'+str(yearKey)+'.png')
+			font = watermarkScript = os.path.join(os.path.dirname(__file__), globalPrefix+'LiberationSerif.ttf')
+			addWatermark(imagePath, str(yearKey), font, 20, 700)
+			archive = re.findall(r'(^https?:\/\/([a-zA-z]|\.)+)', urlValue)
+			archive = re.sub(r'^https?:\/\/', "", archive[0][0])
+			addWatermark(imagePath, archive, font, 20, 735)
+
 		return True
 
 	return False
 
+def addWatermark(imagePath, text, fontPath, x, y):
+	params = ['convert',
+				imagePath,
+				'-undercolor',
+				'#0008',
+				'-pointsize',
+				'30',
+				'-fill',
+				'white',
+				'-font',
+				fontPath,
+				'-annotate',
+				'+'+str(x)+'+'+str(y),
+				text,
+				imagePath]
+	subprocess.check_call(params)
+
 def convertToAnimatedGIF(path):
 
 	if( len(path)> 0 ):
-		
+		'''
 		filenames = next(os.walk('./' + path + '/'))[2]
 
 		for f in filenames:
@@ -543,7 +568,7 @@ def convertToAnimatedGIF(path):
 		          			'./'+ path+ '/' + f
 		          		]
 				subprocess.check_call(params)
-
+		'''
 		params = ['convert', './'+path+'/*.png', './'+path+'/'+path+'Fast.gif']
 		subprocess.check_call(params)
 		params = ['convert', '-delay', '400','./'+path+'/*.png', './'+path+'/'+path+'Delay4.gif']

@@ -320,7 +320,8 @@ def get1MementoPerYear(yearUrlDictionary, mementos, delimeterCharacter, numOfURL
 
 					if date.tm_year not in yearUrlDictionary:
 						if numPostCounter == numOfURLPosts:
-							yearUrlDictionary[date.tm_year] = urlAndDateTime[0]
+							dateStr = getDateStr(date)
+							yearUrlDictionary[date.tm_year] = (urlAndDateTime[0], dateStr)
 						else:
 							numPostCounter = numPostCounter + 1
 
@@ -360,6 +361,20 @@ def getNumOfURLPosts(URL):
 		if entryParts[0] == URL and len(entryParts) > 4:
 			counter = counter + 1
 	return counter
+
+def getDateStr(dateObj):
+	dateStr = str(dateObj.tm_year)+"-"
+	if dateObj.tm_mon < 10:
+		dateStr += "0"+str(dateObj.tm_mon)+"-"
+	else:
+		dateStr += str(dateObj.tm_mon)+"-"
+
+	if dateObj.tm_mday < 10:
+		dateStr += "0"+str(dateObj.tm_mday)
+	else:
+		dateStr += str(dateObj.tm_mday)
+	
+	return dateStr
 
 def getCanonicalUrl(URL):
 
@@ -508,7 +523,7 @@ def takeScreenshots(dictionaryOfItems, folderName, urlsFile, resolutionX = '1024
 		#for yearKey, urlValue in dictionaryOfItems.items():
 		for yearKey in sortedKeys:
 
-			urlValue = dictionaryOfItems[yearKey]
+			urlValue = dictionaryOfItems[yearKey][0]
 			#yearValue = extractYearFromUrl(urlValue)
 			#call(['phantomjs', phantomscript, urlValue, resolutionX, resolutionY, folderName, str(yearKey)])
 			puppeteerScript = os.path.join(os.path.dirname(__file__), globalPrefix+'takeScreenshot.js')
@@ -519,7 +534,7 @@ def takeScreenshots(dictionaryOfItems, folderName, urlsFile, resolutionX = '1024
 
 			imagePath = os.path.join(os.path.dirname(__file__), globalPrefix+folderName+'/'+str(yearKey)+'.png')
 			font = watermarkScript = os.path.join(os.path.dirname(__file__), globalPrefix+'LiberationSerif.ttf')
-			addWatermark(imagePath, str(yearKey), font, 20, 700)
+			addWatermark(imagePath, dictionaryOfItems[yearKey][1], font, 20, 700)
 			archive = re.findall(r'(^https?:\/\/([a-zA-z]|\.)+)', urlValue)
 			archive = re.sub(r'^https?:\/\/', "", archive[0][0])
 			addWatermark(imagePath, archive, font, 20, 735)

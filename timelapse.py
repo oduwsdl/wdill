@@ -631,6 +631,8 @@ def timelapse(url, screen_name = '', tweetID = ''):
 					mementosList.append(mementos)
 				# scrutiny - end
 
+				mementosList = sorted(mementosList, key=len)
+
 				numOfURLPosts = getNumOfURLPosts(url)
 				yearUrlDictionary = {}
 

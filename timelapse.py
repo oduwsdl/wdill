@@ -11,6 +11,9 @@ import glob
 import json
 import requests
 import re
+import wikipedia
+from random import randrange
+from tinytag import TinyTag
 
 from subprocess import call
 from os import walk
@@ -522,22 +525,25 @@ def takeScreenshots(dictionaryOfItems, folderName, urlsFile, resolutionX = '1024
 
 		#for yearKey, urlValue in dictionaryOfItems.items():
 		for yearKey in sortedKeys:
+			try:
+				urlValue = dictionaryOfItems[yearKey][0]
+				#yearValue = extractYearFromUrl(urlValue)
+				#call(['phantomjs', phantomscript, urlValue, resolutionX, resolutionY, folderName, str(yearKey)])
+				puppeteerScript = os.path.join(os.path.dirname(__file__), globalPrefix+'takeScreenshot.js')
+				nodeSystemPath = getConfigParameters('nodeSystemPath')
+				call([nodeSystemPath, puppeteerScript, urlValue, resolutionX, resolutionY, folderName, str(yearKey)])
+				
+				urlsFile.write(str(yearKey) + ': ' + urlValue + '\n')
 
-			urlValue = dictionaryOfItems[yearKey][0]
-			#yearValue = extractYearFromUrl(urlValue)
-			#call(['phantomjs', phantomscript, urlValue, resolutionX, resolutionY, folderName, str(yearKey)])
-			puppeteerScript = os.path.join(os.path.dirname(__file__), globalPrefix+'takeScreenshot.js')
-			nodeSystemPath = getConfigParameters('nodeSystemPath')
-			call([nodeSystemPath, puppeteerScript, urlValue, resolutionX, resolutionY, folderName, str(yearKey)])
-			
-			urlsFile.write(str(yearKey) + ': ' + urlValue + '\n')
-
-			imagePath = os.path.join(os.path.dirname(__file__), globalPrefix+folderName+'/'+str(yearKey)+'.png')
-			font = watermarkScript = os.path.join(os.path.dirname(__file__), globalPrefix+'LiberationSerif.ttf')
-			addWatermark(imagePath, dictionaryOfItems[yearKey][1], font, 20, 700)
-			archive = re.findall(r'(^https?:\/\/([a-zA-z]|\.)+)', urlValue)
-			archive = re.sub(r'^https?:\/\/', "", archive[0][0])
-			addWatermark(imagePath, archive, font, 20, 735)
+				imagePath = os.path.join(os.path.dirname(__file__), globalPrefix+folderName+'/'+str(yearKey)+'.png')
+				font = watermarkScript = os.path.join(os.path.dirname(__file__), globalPrefix+'LiberationSerif.ttf')
+				addWatermark(imagePath, dictionaryOfItems[yearKey][1], font, 20, 700)
+				archive = re.findall(r'(^https?:\/\/([a-zA-z]|\.)+)', urlValue)
+				archive = re.sub(r'^https?:\/\/', "", archive[0][0])
+				addWatermark(imagePath, archive, font, 20, 735)
+			except:
+				print("Error occured when processing the following memento")
+				print(urlValue)
 
 		return True
 
@@ -606,10 +612,67 @@ def optimizeGifs(folderName):
 
 				return newfile
 
+
 def generateMP4(folderName, beginYear):
 	if(len(folderName) > 0):
 		params = ['ffmpeg', '-r', '1', '-start_number', beginYear, '-i', '%d.png', '-s', '864x1080', '-pix_fmt', 'yuv420p', '-vcodec', 'libx264', folderName+'.mp4']
 		subprocess.check_call(params)
+		addMusic(folderName)
+
+def addMusic(folderName):
+	file = open(os.path.join(os.path.dirname(__file__), globalPrefix+folderName+"/urlsFile.txt"))
+	line = file.readline()
+	file.close()
+	url = re.search('https?:\/\/(.*?)\ ', line).group(1)
+	if url[-1] == '/':
+		url = url[:-1]
+	categories = getCategoriesFromWikipedia(url)
+	category = determineCategory(categories)
+	path = os.path.join(os.path.dirname(__file__), globalPrefix+'music/'+category+'/')
+	music = os.listdir(path)
+	musicSelection = randrange(len(music))
+	selectionPath = path+music[musicSelection]
+	videoPath = os.path.join(os.path.dirname(__file__), globalPrefix+folderName+'/'+folderName+'.mp4')
+	videoDuration = int(TinyTag.get(videoPath).duration)
+	audioDuration = int(TinyTag.get(selectionPath).duration)
+	test = False
+	while not test:
+		startTime = randrange(audioDuration)
+		endTime = startTime + videoDuration
+		if (endTime - startTime) <= videoDuration:
+			test = True
+	params = ['ffmpeg', '-i', videoPath, '-ss', str(startTime), '-to', str(endTime), '-i', selectionPath, '-map', '0:v:0', '-map', '1:a:0', '-shortest', videoPath.replace(".mp4","WithAudio.mp4")]
+	subprocess.check_call(params)
+
+
+def getCategoriesFromWikipedia(searchQuery):
+	categories = []
+	if len(searchQuery) > 0:
+		searchRes = wikipedia.search(searchQuery)
+		#print(searchRes)
+		if len(searchRes) > 0:
+			page = wikipedia.page(searchRes[0])
+			categories = page.categories
+	return categories
+
+def determineCategory(wikiCategories):
+	categories = {'education': ['education', 'learn', 'teach'],
+					'travel': ['travel', 'vacation', 'holidays', 'flights', 'rental'],
+					'government': ['government', 'federal'],
+					'media': ['media', 'video', 'news', 'television'],
+					'retail': ['retail', 'stores', 'supermarket', 'shopping'],
+					'community': ['community', 'communities']}
+	
+	if len(wikiCategories) > 0:
+		for wikiCat in wikiCategories:
+			wikiCat = wikiCat.lower()
+			for cat in categories:
+				for keyword in categories[cat]:
+					if keyword in wikiCat:
+						return cat
+	return "other"
+
+
 
 def timelapse(url, screen_name = '', tweetID = ''):
 

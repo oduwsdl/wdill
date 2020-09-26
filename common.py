@@ -161,7 +161,7 @@ def uploadAnimatedGifToSocialMedia(folderName, URL, queueOrPublish='queue'):
 		browserStackAppID = getConfigParameters('browserStackAppID')
 		print("...uploading to Instagram")
 		pythonVirtualEnvPath = getConfigParameters('pythonVirtualEnv1Path')
-		res = subprocess.check_output([pythonVirtualEnvPath, instaScript, username, password, browserStackUserID, browserStackKey, browserStackAppID, globalPrefix + folderName + '/' + folderName + '.mp4', links])
+		res = subprocess.check_output([pythonVirtualEnvPath, instaScript, username, password, browserStackUserID, browserStackKey, browserStackAppID, globalPrefix + folderName + '/' + folderName + 'WithAudio.mp4', links])
 		instagramLink = res.decode('utf-8')
 		print(instagramLink)
 		instagramLink = instagramLink.replace('\n',"")

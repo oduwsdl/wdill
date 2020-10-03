@@ -651,8 +651,11 @@ def getCategoriesFromWikipedia(searchQuery):
 		searchRes = wikipedia.search(searchQuery)
 		#print(searchRes)
 		if len(searchRes) > 0:
-			page = wikipedia.page(searchRes[0])
-			categories = page.categories
+			try:
+				page = wikipedia.page(searchRes[0])
+				categories = page.categories
+			except:
+				print("Wikipedia: Page not found!")
 	return categories
 
 def determineCategory(wikiCategories):

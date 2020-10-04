@@ -613,36 +613,49 @@ def optimizeGifs(folderName):
 				return newfile
 
 
-def generateMP4(folderName, beginYear):
+def generateMP4(folderName, beginYear, musicTrack, startTime):
 	if(len(folderName) > 0):
 		params = ['ffmpeg', '-r', '1', '-start_number', beginYear, '-i', '%d.png', '-s', '864x1080', '-pix_fmt', 'yuv420p', '-vcodec', 'libx264', folderName+'.mp4']
 		subprocess.check_call(params)
-		addMusic(folderName)
+		
+		if musicTrack == '' or startTime < 0:
+			file = open(os.path.join(os.path.dirname(__file__), globalPrefix+folderName+"/urlsFile.txt"))
+			line = file.readline()
+			file.close()
+			url = re.search('https?:\/\/(.*?)\ ', line).group(1)
+			if url[-1] == '/':
+				url = url[:-1]
+			musicTrack = selectTrack(url)
+		
+		addMusic(folderName, musicTrack, startTime)
 
-def addMusic(folderName):
-	file = open(os.path.join(os.path.dirname(__file__), globalPrefix+folderName+"/urlsFile.txt"))
-	line = file.readline()
-	file.close()
-	url = re.search('https?:\/\/(.*?)\ ', line).group(1)
-	if url[-1] == '/':
-		url = url[:-1]
+def selectTrack(url):
 	categories = getCategoriesFromWikipedia(url)
 	category = determineCategory(categories)
 	path = os.path.join(os.path.dirname(__file__), globalPrefix+'music/'+category+'/')
 	music = os.listdir(path)
 	musicSelection = randrange(len(music))
 	selectionPath = path+music[musicSelection]
+	return selectionPath
+
+def addMusic(folderName, selectionPath, startTime):
 	videoPath = os.path.join(os.path.dirname(__file__), globalPrefix+folderName+'/'+folderName+'.mp4')
 	videoDuration = int(TinyTag.get(videoPath).duration)
 	audioDuration = int(TinyTag.get(selectionPath).duration)
-	test = False
-	while not test:
+
+	if startTime < 0:
+		startTime = randrange(audioDuration)
+
+	endTime = startTime + videoDuration
+	while (endTime - startTime) > videoDuration:
 		startTime = randrange(audioDuration)
 		endTime = startTime + videoDuration
-		if (endTime - startTime) <= videoDuration:
-			test = True
+
 	params = ['ffmpeg', '-i', videoPath, '-ss', str(startTime), '-to', str(endTime), '-i', selectionPath, '-map', '0:v:0', '-map', '1:a:0', '-shortest', videoPath.replace(".mp4","WithAudio.mp4")]
 	subprocess.check_call(params)
+
+	# deletes mp4 file without audio
+	subprocess.check_call(['rm', videoPath])
 
 
 def getCategoriesFromWikipedia(searchQuery):
@@ -677,7 +690,7 @@ def determineCategory(wikiCategories):
 
 
 
-def timelapse(url, screen_name = '', tweetID = ''):
+def timelapse(url, screen_name = '', tweetID = '', musicTrack='', startTime=-1):
 
 	someThingWentWrongFlag = False
 	if(len(url) > 0):
@@ -757,7 +770,7 @@ def timelapse(url, screen_name = '', tweetID = ''):
 					optimizeGifs(mementoGIFsPath)
 					print("...done optimizing Gifs")
 					print("...creating mp4 file")
-					generateMP4(mementoGIFsPath, beginYear)
+					generateMP4(mementoGIFsPath, beginYear, musicTrack, startTime)
 					print("...done creating mp4 file")
 
 					'''
@@ -812,11 +825,14 @@ def timelapse(url, screen_name = '', tweetID = ''):
 	return someThingWentWrongFlag
 
 def main():
-	if len(sys.argv) == 1:
-		print("Usage: ", sys.argv[0] + " url (e.g: " + sys.argv[0] + " http://www.example.com)")
-		return
-	elif len(sys.argv) == 2:
+	if len(sys.argv) == 2:
 		timelapse(sys.argv[1])
+	elif len(sys.argv) == 4:
+		timelapse(sys.argv[1], musicTrack=sys.argv[2], startTime=int(sys.argv[3]))
+	else:
+		print("Usage: ", sys.argv[0] + " url (e.g: " + sys.argv[0] + " http://www.example.com)")
+		print("OR:    ", sys.argv[0] + " url musicTrack musicStart[in sec] (e.g: " + sys.argv[0] + " http://www.example.com track.mp3 89)")
+		return
 
 		'''
 		pages = getMementosPages(sys.argv[1])

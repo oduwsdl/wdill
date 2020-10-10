@@ -615,7 +615,7 @@ def optimizeGifs(folderName):
 
 def generateMP4(folderName, beginYear, musicTrack, startTime):
 	if(len(folderName) > 0):
-		params = ['ffmpeg', '-r', '1', '-start_number', beginYear, '-i', '%d.png', '-s', '864x1080', '-pix_fmt', 'yuv420p', '-vcodec', 'libx264', folderName+'.mp4']
+		params = ['ffmpeg', '-r', '1', '-start_number', beginYear, '-i', '%d.png', '-s', '1024x768', '-pix_fmt', 'yuv420p', '-vcodec', 'libx264', folderName+'.mp4']
 		subprocess.check_call(params)
 		
 		if musicTrack == '' or startTime < 0:

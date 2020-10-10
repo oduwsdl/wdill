@@ -632,7 +632,7 @@ def generateMP4(folderName, beginYear, musicTrack, startTime):
 def selectTrack(url):
 	categories = getCategoriesFromWikipedia(url)
 	category = determineCategory(categories)
-	path = os.path.join(os.path.dirname(__file__), globalPrefix+'music/'+category+'/')
+	path = determineMusicPath(category)
 	music = os.listdir(path)
 	musicSelection = randrange(len(music))
 	selectionPath = path+music[musicSelection]
@@ -688,7 +688,17 @@ def determineCategory(wikiCategories):
 						return cat
 	return "other"
 
-
+def determineMusicPath(category):
+	genres = {'education': ['acoustic', 'jazz'],
+				'travel': ['cinematic', 'country', 'jazz'],
+				'government': ['cinematic'],
+				'media': ['acoustic', 'pop'],
+				'retail': ['electronica', 'pop', 'rock'],
+				'community': ['pop', 'rock'],
+				'other': ['electronica', 'country']}
+	genreIndex = randrange(len(genres[category]))
+	path = os.path.join(os.path.dirname(__file__), globalPrefix+'music/'+genres[category][genreIndex]+'/')
+	return path
 
 def timelapse(url, screen_name = '', tweetID = '', musicTrack='', startTime=-1):
 

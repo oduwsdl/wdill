@@ -675,7 +675,7 @@ def determineCategory(wikiCategories):
 	categories = {'education': ['education', 'learn', 'teach'],
 					'travel': ['travel', 'vacation', 'holidays', 'flights', 'rental'],
 					'government': ['government', 'federal'],
-					'media': ['media', 'video', 'news', 'television'],
+					'media': ['media', 'video', 'news', 'television', 'magazine', 'blog'],
 					'retail': ['retail', 'stores', 'supermarket', 'shopping'],
 					'community': ['community', 'communities']}
 	

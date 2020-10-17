@@ -677,6 +677,7 @@ def determineCategory(wikiCategories):
 	categories = {'education': ['education', 'learn', 'teach'],
 					'travel': ['travel', 'vacation', 'holidays', 'flights', 'rental'],
 					'government': ['government', 'federal'],
+					'medical': ['medical', 'medicine', 'health'],
 					'media': ['media', 'video', 'news', 'television', 'magazine', 'blog'],
 					'retail': ['retail', 'stores', 'supermarket', 'shopping'],
 					'community': ['community', 'communities']}
@@ -694,6 +695,7 @@ def determineMusicPath(category):
 	genres = {'education': ['acoustic', 'jazz'],
 				'travel': ['cinematic', 'country', 'jazz'],
 				'government': ['cinematic'],
+				'medical': ['acoustic'],
 				'media': ['acoustic', 'pop'],
 				'retail': ['electronica', 'pop', 'rock'],
 				'community': ['pop', 'rock'],

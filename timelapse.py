@@ -323,8 +323,10 @@ def get1MementoPerYear(yearUrlDictionary, mementos, delimeterCharacter, numOfURL
 
 					if date.tm_year not in yearUrlDictionary:
 						if numPostCounter == numOfURLPosts:
-							dateStr = getDateStr(date)
-							yearUrlDictionary[date.tm_year] = (urlAndDateTime[0], dateStr)
+							testMemento = requests.get(urlAndDateTime[0])
+							if testMemento.status_code < 400:
+								dateStr = getDateStr(date)
+								yearUrlDictionary[date.tm_year] = (urlAndDateTime[0], dateStr)
 						else:
 							numPostCounter = numPostCounter + 1
 

@@ -1,7 +1,7 @@
 # What Did It Look Like?
 
 For full explanation of this system, visit:
-[http://ws-dl.blogspot.com/](http://ws-dl.blogspot.com/2015/01/2015-01-06-what-did-it-look-like.html)
+[http://ws-dl.blogspot.com/](https://ws-dl.blogspot.com/2020/08/2020-08-20-automating-posting-videos-to.html)
 
 ## Prerequisites
 

@@ -538,7 +538,7 @@ def takeScreenshots(dictionaryOfItems, folderName, urlsFile, resolutionX = '1024
 				urlsFile.write(str(yearKey) + ': ' + urlValue + '\n')
 
 				imagePath = os.path.join(os.path.dirname(__file__), globalPrefix+folderName+'/'+str(yearKey)+'.png')
-				font = watermarkScript = os.path.join(os.path.dirname(__file__), globalPrefix+'LiberationSerif.ttf')
+				font = os.path.join(os.path.dirname(__file__), globalPrefix+'LiberationSerif.ttf')
 				addWatermark(imagePath, dictionaryOfItems[yearKey][1], font, 20, 700)
 				archive = re.findall(r'(^https?:\/\/([a-zA-z]|\.|\-)+)', urlValue)
 				archive = re.sub(r'^https?:\/\/', "", archive[0][0])

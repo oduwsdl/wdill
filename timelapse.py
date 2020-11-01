@@ -383,27 +383,27 @@ def getDateStr(dateObj):
 
 def getCanonicalUrl(URL):
 
-    netloc = ''
-    path = ''
-    params = ''
-    query = ''
-    fragment = ''
+	netloc = ''
+	path = ''
+	params = ''
+	query = ''
+	fragment = ''
 
-    URL = URL.strip()
-    if( len(URL)>0 ):
-    	
-        canonicalURL = handyurl.parse(URL)
-        canonicalURL = canonicalize(canonicalURL).getURLString()
+	URL = URL.strip()
+	if( len(URL)>0 ):
+		
+		canonicalURL = handyurl.parse(URL)
+		canonicalURL = canonicalize(canonicalURL).getURLString()
 
-        scheme, netloc, path, params, query, fragment = urllib.parse.urlparse(canonicalURL)
+		scheme, netloc, path, params, query, fragment = urllib.parse.urlparse(canonicalURL)
 
-    returnValue = netloc + path + params + query + fragment
+	returnValue = netloc + path + params + query + fragment
 
-    #normalize url
-    if( returnValue[-1] == '/' ):
-    	returnValue = returnValue[:-1]
+	#normalize url
+	if( returnValue[-1] == '/' ):
+		returnValue = returnValue[:-1]
 
-    return returnValue
+	return returnValue
 
 def extractYearFromUrl(url):
 	if(len(url) > 0):
@@ -583,20 +583,20 @@ def convertToAnimatedGIF(path):
 							'50',
 							'label:'+ f.replace(".png",""),
 							'+swap',
-		          			'-gravity',
-		          			'Center',
-		          			'-append',
-		          			'-frame',
-		          			'10',
-		          			'./'+ path+ '/' + f
-		          		]
+				  			'-gravity',
+				  			'Center',
+				  			'-append',
+				  			'-frame',
+				  			'10',
+				  			'./'+ path+ '/' + f
+				  		]
 				subprocess.check_call(params)
 		'''
 		params = ['convert', './'+path+'/*.png', './'+path+'/'+path+'Fast.gif']
 		subprocess.check_call(params)
 		params = ['convert', '-delay', '400','./'+path+'/*.png', './'+path+'/'+path+'Delay4.gif']
 		subprocess.check_call(params)
-     
+	 
 def optimizeGifs(folderName):
 
 	if(len(folderName) > 0):
@@ -893,12 +893,12 @@ if __name__ == "__main__":
 		#				'50',
 		#				'label:'+ f.replace(".png",""),
 		#				'+swap',
-	    #      			'-gravity',
-	    #      			'Center',
-	    #      			'-append',
-	    #      			'-frame',
-	    #      			'10',
-	    #      			'./'+ path+ '/' + f
-	    #      		]
+		#	  			'-gravity',
+		#	  			'Center',
+		#	  			'-append',
+		#	  			'-frame',
+		#	  			'10',
+		#	  			'./'+ path+ '/' + f
+		#	  		]
 
 '''

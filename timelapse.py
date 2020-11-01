@@ -668,10 +668,24 @@ def getCategoriesFromWikipedia(searchQuery):
 		if len(searchRes) > 0:
 			try:
 				page = wikipedia.page(searchRes[0])
-				categories = page.categories
+				categories = isWikiPageValid(page, searchQuery)
 			except:
 				print("Wikipedia: Page not found!")
 	return categories
+
+def isWikiPageValid(wikiPage, url):
+	for link in wikiPage.references:
+		# remove https:www.
+		cleanedLink = re.sub('^https?:\/\/(www\.)?', '', link)
+		
+		# remove trailing slash
+		if( cleanedLink[-1] == '/' ):
+			cleanedLink = cleanedLink[:-1]
+		
+		if cleanedLink == url:
+			return wikiPage.categories
+	return []
+
 
 def determineCategory(wikiCategories):
 	categories = {'education': ['education', 'learn', 'teach'],

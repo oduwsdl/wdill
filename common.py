@@ -153,7 +153,7 @@ def uploadAnimatedGifToSocialMedia(folderName, URL, queueOrPublish='queue'):
 		instagramLink = instagramLink.replace('Instagram Link: ','')
 		'''
 
-		instaScript = os.path.join(os.path.dirname(__file__), globalPrefix+'instagramWithBrowserStack.py.js')
+		instaScript = os.path.join(os.path.dirname(__file__), globalPrefix+'instagramWithBrowserStack.py')
 		username = getConfigParameters('instagramUsername')
 		password = getConfigParameters('instagramPassword')
 		browserStackUserID = getConfigParameters('browserStackUserID')

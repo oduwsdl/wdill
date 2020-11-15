@@ -1,0 +1,10 @@
+requests==2.22.0
+Appium_Python_Client==1.0.2
+beautifulsoup4==4.9.3
+pytumblr==0.1.0
+selenium==3.141.0
+surt==0.3.1
+tinytag==1.4.0
+tldextract==2.2.3
+tweepy==3.9.0
+wikipedia==1.4.0

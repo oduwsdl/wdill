@@ -57,7 +57,7 @@ logIn.click()
 time.sleep(5)
 
 uploadMedia = WebDriverWait(driver, 30).until(
-    EC.element_to_be_clickable((MobileBy.XPATH, "//android.widget.FrameLayout[@content-desc='Camera']"))
+    EC.element_to_be_clickable((MobileBy.XPATH, "//android.widget.Button[@content-desc='Camera']"))
 )
 uploadMedia.click()
 time.sleep(3)
@@ -74,13 +74,11 @@ chooseFile = WebDriverWait(driver, 30).until(
 chooseFile.click()
 time.sleep(5)
 
-'''
 cropToggle = WebDriverWait(driver, 30).until(
     EC.element_to_be_clickable((MobileBy.ACCESSIBILITY_ID, "Toggle square"))
 )
 cropToggle.click()
 time.sleep(3)
-'''
 
 selectMedia = WebDriverWait(driver, 30).until(
     EC.element_to_be_clickable((MobileBy.ACCESSIBILITY_ID, "Next"))

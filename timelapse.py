@@ -348,7 +348,7 @@ def get1MementoPerYear(yearUrlDictionary, mementos, delimeterCharacter, numOfURL
 
 		for year in URLYears:
 			if year not in yearUrlDictionary:
-				yearUrlDictionary = get1MementoPerYear(yearUrlDictionary, mementos, delimiterCharacter, 0)
+				yearUrlDictionary = get1MementoPerYear(yearUrlDictionary, mementos, delimeterCharacter, 0)
 				break
 
 			

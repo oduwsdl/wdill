@@ -179,7 +179,7 @@ def postToTumblrQueue():
 					#folderName is hash
 					folderName = getHashString(canonicalURL)
 					print('...hashFolderName:', folderName)
-					postID, beginYear, endYear  = uploadAnimatedGifToSocialMedia(folderName, URL)
+					postID, beginYear, endYear, instagramLink  = uploadAnimatedGifToSocialMedia(folderName, URL)
 
 					#print 'folderName', folderName
 					#postID = 123
@@ -204,7 +204,7 @@ def postToTumblrQueue():
 					if( len(pageTitle) > 40 ):
 						pageTitle = pageTitle[0:39]
 						pageTitle = pageTitle + '...'
-					twitterStatusUpdateMessage = getRandomStatusUpdateMessage(canonicalURL, pageTitle, beginYear, endYear, link)
+					twitterStatusUpdateMessage = getRandomStatusUpdateMessage(canonicalURL, pageTitle, beginYear, endYear, link+", "+instagramLink)
 					print('...status update message when public: ', twitterStatusUpdateMessage)
 
 				else:
@@ -213,6 +213,7 @@ def postToTumblrQueue():
 					beginYear = '0000'
 					endYear = '0000'
 					postID = '0000'
+					instagramLink = '0000'
 
 					#TAG-MODIFICATION-ZONE
 					notificationMessage = ' Your request ('+ tweetDateTimeString +') has already been posted. Please retry in ' + str(dateDiff) + ' days: ' + globalBlogName + '/tagged/' + formattedTag
@@ -224,8 +225,8 @@ def postToTumblrQueue():
 
 
 				#if post is successful, get a status update message - end
-				if( len(twitterStatusUpdateMessage)>0 and len(folderName)>0 and len(beginYear)>0 and len(endYear)>0 and postID>0 ):
-					dictionaryOfLinesToModify[i] = [ postID, twitterStatusUpdateMessage ]
+				if( len(twitterStatusUpdateMessage)>0 and len(folderName)>0 and len(beginYear)>0 and len(endYear)>0 and postID>0 and len(instagramLink)>0):
+					dictionaryOfLinesToModify[i] = [ postID, instagramLink, twitterStatusUpdateMessage]
 
 		#if a new post has been placed on the queue modify entry line in input file
 		if( len(dictionaryOfLinesToModify) > 0 ):
@@ -234,8 +235,9 @@ def postToTumblrQueue():
 
 			for index, postDataArray in list(dictionaryOfLinesToModify.items()):
 				postID = str(postDataArray[0])
-				twitterStatusUpdateMessageWhenPublic = postDataArray[1]
-				nominationTuples[index] = nominationTuples[index].strip() + ' <> ' + postID + ' <> ' + twitterStatusUpdateMessageWhenPublic + '\n'
+				instaLink = postDataArray[1]
+				twitterStatusUpdateMessageWhenPublic = postDataArray[2]
+				nominationTuples[index] = nominationTuples[index].strip() + ' <> ' + postID + ' <> ' + instaLink + ' <> ' + twitterStatusUpdateMessageWhenPublic + '\n'
 
 			try:
 				nominationsFile = open(globalDataFileName, 'w')

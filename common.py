@@ -163,17 +163,18 @@ def uploadAnimatedGifToSocialMedia(folderName, URL, queueOrPublish='queue'):
 		pythonVirtualEnvPath = getConfigParameters('pythonVirtualEnv1Path')
 		res = subprocess.check_output([pythonVirtualEnvPath, instaScript, username, password, browserStackUserID, browserStackKey, browserStackAppID, globalPrefix + folderName + '/' + folderName + 'WithAudio.mp4', links])
 		instagramLink = res.decode('utf-8')
-		print(instagramLink)
 		instagramLink = instagramLink.replace('\n',"")
-		instagramLink = instagramLink.replace('Instagram Link: ','')
+		instagramLink = instagramLink.split('Instagram Link: ')[-1]
+		instagramLink = re.sub('^https?:\/\/(www\.)?', '', instagramLink.split('/?')[0])
+		print(instagramLink)
 		
 		if(len(gifAnimationFilename) > 0):
 			print("...uploading to tumblr")
 			postID = client.create_photo(globalBlogName, tags=[tags], state=queueOrPublish, caption=[links], data=globalPrefix + folderName + '/' + gifAnimationFilename)
 			#write this postID to tumblrDataFile.txt
-			return postID['id'], beginYear, endYear
+			return postID['id'], beginYear, endYear, instagramLink
 
-	return -1, '', ''
+	return -1, '', '', ''
 
 def getPostDateTime(postTag):
 

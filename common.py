@@ -5,7 +5,7 @@ import re
 import time
 from datetime import datetime
 
-import subprocess
+import requests
 import subprocess
 import hashlib
 from random import randint
@@ -227,14 +227,19 @@ def isPosted(canonicalURLHash):
 	if( len(canonicalURLHash) > 0 ):
 
 		
-		canonicalURLHash = 'http://'+globalBlogName+'/tagged/'+canonicalURLHash
+		canonicalURLHash = 'https://'+globalBlogName+'/tagged/'+canonicalURLHash
 		
 
 		try:
+			'''
 			co = 'curl -I -A "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.101 Safari/537.36" "'+canonicalURLHash+'"'
 			header = subprocess.getoutput(co)
 
 			if(header.find('HTTP/1.1 200 OK') > -1):
+				returnCode = 1
+			'''
+			req = requests.get(canonicalURLHash)
+			if req.status_code == 200:
 				returnCode = 1
 		except:
 			returnCode = -1

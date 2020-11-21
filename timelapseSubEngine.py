@@ -41,7 +41,7 @@ debugOutputFileName = globalPrefix + 'debugOutputFile.txt'
 
 
 
-def makeStatusUpdateAndNotifyReferrer(twitterStatusUpdateMessage, screen_nameOfUserWhoSuggestedUri, tweet_id, URL, link, filename):
+def makeStatusUpdateAndNotifyReferrer(twitterStatusUpdateMessage, screen_nameOfUserWhoSuggestedUri, tweet_id, URL, link, instagramLink, filename):
 
 	modifyEntryFlag = False
 	twitterStatusUpdateMessage = twitterStatusUpdateMessage.strip()
@@ -84,7 +84,7 @@ def makeStatusUpdateAndNotifyReferrer(twitterStatusUpdateMessage, screen_nameOfU
 				pageTitle = pageTitle[0:39]
 				pageTitle = pageTitle + '...'
 
-			notificationMessage = ' ' + getCanonicalUrl(URL) + ' (' + pageTitle + ') has been posted: ' + link
+			notificationMessage = ' ' + getCanonicalUrl(URL) + ' (' + pageTitle + ') has been posted: ' + link + '\n' + instagramLink
 			
 			print('...status notification', notificationMessage)
 			#MOD
@@ -293,7 +293,7 @@ def notifyOnPostApproved():
 			)
 			'''
 			#this url has been posted on queue, so check if approved published
-			if( len(nominationData) == 6 ):
+			if( len(nominationData) == 7 ):
 
 				URL = nominationData[0].strip()
 				tweetDateTime = nominationData[2].strip()
@@ -304,7 +304,7 @@ def notifyOnPostApproved():
 				folderName = ''
 
 				#TAG-MODIFICATION-ZONE
-				link = 'http://'+globalBlogName+'/tagged/'+ formattedTag
+				link = 'https://'+globalBlogName+'/tagged/'+ formattedTag
 				print('...checking for public status URL/canonicalURL:', URL, canonicalURL)
 
 				
@@ -348,12 +348,13 @@ def notifyOnPostApproved():
 
 						screenNameOfUserWhoSuggestedURI = nominationData[1].strip()
 						tweetID = nominationData[3].strip()
-						statusUpdateMessage = nominationData[5].strip()
+						instaLink = nominationData[5].strip()
+						statusUpdateMessage = nominationData[6].strip()
 						
 						folderName = getHashString(canonicalURL)
 						filename = './'+folderName+'/'+folderName+'OptDelay4.gif'
 
-						modifyEntryFlag = makeStatusUpdateAndNotifyReferrer(statusUpdateMessage, screenNameOfUserWhoSuggestedURI, tweetID, URL, link, filename)
+						modifyEntryFlag = makeStatusUpdateAndNotifyReferrer(statusUpdateMessage, screenNameOfUserWhoSuggestedURI, tweetID, URL, link, instaLink, filename)
 
 						#if notification to referrer went well, modify entry in file
 						

@@ -50,7 +50,7 @@ def makeStatusUpdateAndNotifyReferrer(twitterStatusUpdateMessage, screen_nameOfU
 			
 			print('...status update:', twitterStatusUpdateMessage.strip() + '\n#memento')
 			#MOD
-			updateStatus(twitterStatusUpdateMessage.strip() + '\n#memento')
+			updateStatusWithMedia(statusUpdateString=twitterStatusUpdateMessage.strip() + '\n#memento', filename=filename)
 			
 			modifyEntryFlag = True
 		except:

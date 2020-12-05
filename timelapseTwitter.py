@@ -273,7 +273,7 @@ def updateStatusWithMedia(statusUpdateString, filename, screen_name = '', tweet_
             tweet_id = int(tweet_id)
             api.update_with_media(filename, '@'+ screen_name + ', ' + statusUpdateString, tweet_id)
         else:
-            api.update_with_filename(filename, statusUpdateString)
+            api.update_with_media(filename, statusUpdateString)
 
 def sendSomeoneADirectMessage(screen_name, message):
     if(len(screen_name) > 0):

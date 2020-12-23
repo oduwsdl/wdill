@@ -138,40 +138,42 @@ def uploadAnimatedGifToSocialMedia(folderName, URL, queueOrPublish='queue'):
 
 		beginYear, endYear = extractBeginAndEndYear(firstline)
 		gifAnimationFilename = getGifFilename(folderName)
+		mp4Filename = globalPrefix + folderName + '/' + folderName + 'WithAudio.mp4'
 
-		#instagram currently doesn't support posting videos via a web browser
-		'''
-		instaScript = os.path.join(os.path.dirname(__file__), globalPrefix+'instagram.js')
-		username = getConfigParameters('instagramUsername')
-		password = getConfigParameters('instagramPassword')
-		nodeSystemPath = getConfigParameters('nodeSystemPath')
-		print("...uploading to instagram")
-		res = subprocess.check_output([nodeSystemPath, instaScript, username, password, globalPrefix + folderName + '/' + folderName + '.mp4', links])
-		instagramLink = res.decode('utf-8')
-		print(instagramLink)
-		instagramLink = instagramLink.replace('\n',"")
-		instagramLink = instagramLink.replace('Instagram Link: ','')
-		'''
+		if(len(mp4Filename) > 0):
+			#instagram currently doesn't support posting videos via a web browser
+			'''
+			instaScript = os.path.join(os.path.dirname(__file__), globalPrefix+'instagram.js')
+			username = getConfigParameters('instagramUsername')
+			password = getConfigParameters('instagramPassword')
+			nodeSystemPath = getConfigParameters('nodeSystemPath')
+			print("...uploading to instagram")
+			res = subprocess.check_output([nodeSystemPath, instaScript, username, password, globalPrefix + folderName + '/' + folderName + '.mp4', links])
+			instagramLink = res.decode('utf-8')
+			print(instagramLink)
+			instagramLink = instagramLink.replace('\n',"")
+			instagramLink = instagramLink.replace('Instagram Link: ','')
+			'''
 
-		instaScript = os.path.join(os.path.dirname(__file__), globalPrefix+'instagramWithBrowserStack.py')
-		username = getConfigParameters('instagramUsername')
-		password = getConfigParameters('instagramPassword')
-		browserStackUserID = getConfigParameters('browserStackUserID')
-		browserStackKey = getConfigParameters('browserStackKey')
-		browserStackAppID = getConfigParameters('browserStackAppID')
-		print("...uploading to Instagram")
-		pythonVirtualEnvPath = getConfigParameters('pythonVirtualEnv1Path')
-		instaCaption = links[0].replace("\n","") + " #memento"
-		res = subprocess.check_output([pythonVirtualEnvPath, instaScript, username, password, browserStackUserID, browserStackKey, browserStackAppID, globalPrefix + folderName + '/' + folderName + 'WithAudio.mp4', instaCaption])
-		instagramLink = res.decode('utf-8')
-		instagramLink = instagramLink.replace('\n',"")
-		instagramLink = instagramLink.split('Instagram Link: ')[-1]
-		instagramLink = re.sub('^https?:\/\/(www\.)?', '', instagramLink.split('/?')[0])
-		print(instagramLink)
-		
-		if(len(gifAnimationFilename) > 0):
+			instaScript = os.path.join(os.path.dirname(__file__), globalPrefix+'instagramWithBrowserStack.py')
+			username = getConfigParameters('instagramUsername')
+			password = getConfigParameters('instagramPassword')
+			browserStackUserID = getConfigParameters('browserStackUserID')
+			browserStackKey = getConfigParameters('browserStackKey')
+			browserStackAppID = getConfigParameters('browserStackAppID')
+			print("...uploading to Instagram")
+			pythonVirtualEnvPath = getConfigParameters('pythonVirtualEnv1Path')
+			instaCaption = links[0].replace("\n","") + " #memento"
+			res = subprocess.check_output([pythonVirtualEnvPath, instaScript, username, password, browserStackUserID, browserStackKey, browserStackAppID, mp4Filename, instaCaption])
+			instagramLink = res.decode('utf-8')
+			instagramLink = instagramLink.replace('\n',"")
+			instagramLink = instagramLink.split('Instagram Link: ')[-1]
+			instagramLink = re.sub('^https?:\/\/(www\.)?', '', instagramLink.split('/?')[0])
+			print(instagramLink)
+			
 			print("...uploading to tumblr")
-			postID = client.create_photo(globalBlogName, tags=[tags], state=queueOrPublish, caption=[links], data=globalPrefix + folderName + '/' + gifAnimationFilename)
+			postID = client.create_video(globalBlogName, tags=[tags], state=queueOrPublish, caption=[links], data=mp4Filename)
+			#postID = client.create_photo(globalBlogName, tags=[tags], state=queueOrPublish, caption=[links], data=globalPrefix + folderName + '/' + gifAnimationFilename)
 			#write this postID to tumblrDataFile.txt
 			return postID['id'], beginYear, endYear, instagramLink
 

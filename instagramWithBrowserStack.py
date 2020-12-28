@@ -9,7 +9,12 @@ import sys
 
 userName = sys.argv[3]
 accessKey = sys.argv[4]
-appID = sys.argv[5]
+
+appPath = sys.argv[5]
+uploadApp = subprocess.check_output(['curl', '-s', '-u', userName+':'+accessKey, '-X', 'POST', 'https://api-cloud.browserstack.com/app-automate/upload', '-F', 'file=@'+appPath])
+uploadApp = uploadApp.decode('utf-8')
+appID = json.loads(uploadApp)
+appID = appID["app_url"]
 
 filePath = sys.argv[6]
 postVideo = subprocess.check_output(['curl', '-s', '-u', userName+':'+accessKey, '-X', 'POST', 'https://api-cloud.browserstack.com/app-automate/upload-media', '-F', 'file=@'+filePath])
@@ -130,6 +135,9 @@ time.sleep(15)
 
 postLink = driver.get_clipboard_text()
 print("Instagram Link: " + postLink)
+
+appHash = appID.replace("bs://","")
+subprocess.call(['curl', '-s', '-u', userName+':'+accessKey, '-X', 'DELETE', 'https://api-cloud.browserstack.com/app-automate/app/delete/'+appHash])
 
 mediaHash = mediaLink.replace("media://","")
 subprocess.call(['curl', '-s', '-u', userName+':'+accessKey, '-X', 'DELETE', 'https://api-cloud.browserstack.com/app-automate/custom_media/delete/'+mediaHash])

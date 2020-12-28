@@ -160,11 +160,12 @@ def uploadAnimatedGifToSocialMedia(folderName, URL, queueOrPublish='queue'):
 			password = getConfigParameters('instagramPassword')
 			browserStackUserID = getConfigParameters('browserStackUserID')
 			browserStackKey = getConfigParameters('browserStackKey')
-			browserStackAppID = getConfigParameters('browserStackAppID')
+			instaAppPath = glob.glob(globalPrefix+"*.apk")[0]
+
 			print("...uploading to Instagram")
 			pythonVirtualEnvPath = getConfigParameters('pythonVirtualEnv1Path')
 			instaCaption = links[0].replace("\n","") + " #memento"
-			res = subprocess.check_output([pythonVirtualEnvPath, instaScript, username, password, browserStackUserID, browserStackKey, browserStackAppID, mp4Filename, instaCaption])
+			res = subprocess.check_output([pythonVirtualEnvPath, instaScript, username, password, browserStackUserID, browserStackKey, instaAppPath, mp4Filename, instaCaption])
 			instagramLink = res.decode('utf-8')
 			instagramLink = instagramLink.replace('\n',"")
 			instagramLink = instagramLink.split('Instagram Link: ')[-1]

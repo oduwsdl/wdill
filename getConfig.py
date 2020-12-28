@@ -1,7 +1,7 @@
 import json
 import os, sys
 
-configFileName = '/AbsolutePathToThisConfigFileHere/config'
+configFileName = os.path.abspath(__file__).replace(__file__,"config")
 
 def getConfigParameters(keyValue):
 

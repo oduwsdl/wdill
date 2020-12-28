@@ -31,7 +31,11 @@ The JavaScript dependencies include:
 
 ## Usage
 
-* Modify the [config](https://github.com/dhruv282/wdill/blob/master/config) file; replace all place holders and insert the necessary credentials.
+* Modify the [config](https://github.com/dhruv282/wdill/blob/master/config) file; replace all place holders and insert the necessary credentials. WDILL requires credentials to the following services in order to function properly:
+  * [Twitter API](https://developer.twitter.com/en/docs/twitter-api)
+  * [Tumblr API]()
+  * [Instagram  login](https://www.instagram.com/)
+  * [BrowserStack Access Key](https://www.browserstack.com/)
 * The process will run as a cron job on the 1st of every month. To modify the timing, edit the [crontab](https://github.com/dhruv282/wdill/blob/master/crontab) file following [this](https://man7.org/linux/man-pages/man5/crontab.5.html) documentation as needed.
 
 

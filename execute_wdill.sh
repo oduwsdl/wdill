@@ -1,4 +1,4 @@
 echo $(date)
 echo "------------------------------------------"
-$(which python3) /wdill/timelapseTwitter.py
+cd <WDILL_PATH> && $(which python3) timelapseTwitter.py
 echo "******************************************"

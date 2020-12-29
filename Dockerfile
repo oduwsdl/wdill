@@ -13,16 +13,22 @@ ADD	. /wdill
 
 RUN 	chmod +x /wdill/*
 
+WORKDIR /wdill
+
+# Replace path placeholders with project location
+RUN 	sed -i "s@<WDILL_PATH>@/wdill@" crontab
+RUN		sed -i "s@<WDILL_PATH>@/wdill@" execute_wdill.sh
+
 # Add crontab file in the cron directory
 ADD 	crontab /etc/cron.d/wdill-cron
+
+RUN		sed -i "s@<WDILL_PATH>@/wdill@" /etc/cron.d/wdill-cron
 
 # Give execution rights on the cron job
 RUN 	chmod 0644 /etc/cron.d/wdill-cron
 
 # Create the log file to be able to run tail
 RUN 	touch /var/log/cron.log
-
-WORKDIR /wdill
 
 # Install Python dependencies
 RUN 	pip3 install -r requirements.txt

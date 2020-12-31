@@ -557,7 +557,7 @@ def main():
     print('...calling usingTimelapseToTakeScreenShots.py')
 
     pythonVirtualEnvPath = getConfigParameters('pythonVirtualEnv1Path')
-    os.system(pythonVirtualEnvPath + ' ' + globalPrefix + 'usingTimelapseToTakeScreenShots.py &')
+    os.system(pythonVirtualEnvPath + ' -u ' + globalPrefix + 'usingTimelapseToTakeScreenShots.py &')
 
 
     #debug - end

@@ -40,4 +40,4 @@ print('...calling timelapseSubEngine.py')
 #MOD
 os.chdir(originalPath)
 pythonVirtualEnvPath = getConfigParameters('pythonVirtualEnv1Path')
-os.system(pythonVirtualEnvPath + ' ' + globalPrefix + 'timelapseSubEngine.py &')
+os.system(pythonVirtualEnvPath + ' -u ' + globalPrefix + 'timelapseSubEngine.py &')

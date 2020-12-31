@@ -33,7 +33,7 @@ for i in range(0,len(nominationTuples)):
 		#tweetID = nomimationData[3].strip()
 
 		os.chdir(originalPath)
-		print("...sending ", URL, " to timelapse to take pictures")
+		print("...sending "+ URL+ " to timelapse to take pictures")
 		timelapse(URL)
 
 print('...calling timelapseSubEngine.py')

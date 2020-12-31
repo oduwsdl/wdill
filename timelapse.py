@@ -303,7 +303,7 @@ def getHash(canonicalURL):
 	return md5hash
 
 #returns a dictionary of <year, url> tuples. Given multiple instances of same year, only first is considered
-def get1MementoPerYear(yearUrlDictionary, mementos, delimeterCharacter, numOfURLPosts):
+def get1MementoPerYear(yearUrlDictionary, mementos, delimeterCharacter, numOfURLPosts, checkMissingYears=True):
 
 	if( len(mementos)>0 ):
 		errorCount = 1
@@ -346,10 +346,11 @@ def get1MementoPerYear(yearUrlDictionary, mementos, delimeterCharacter, numOfURL
 						yearUrlDictionary[date] = urlAndDateTime[0]
 					errorCount = errorCount + 1
 
-		for year in URLYears:
-			if year not in yearUrlDictionary:
-				yearUrlDictionary = get1MementoPerYear(yearUrlDictionary, mementos, delimeterCharacter, 0)
-				break
+		if checkMissingYears:
+			for year in URLYears:
+				if year not in yearUrlDictionary:
+					yearUrlDictionary = get1MementoPerYear(yearUrlDictionary, mementos, delimeterCharacter, 0, False)
+					break
 
 			
 		return yearUrlDictionary

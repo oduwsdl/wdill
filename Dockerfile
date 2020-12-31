@@ -1,13 +1,11 @@
-FROM	node:latest
+FROM	nikolaik/python-nodejs:latest
 
 # Install service requirements
-RUN 	apt-get update \
-		&& apt-get install -y \
-		python3 \
-		python3-pip \
-		cron \
-		ffmpeg \
-		imagemagick
+RUN 	apt-get update &&\
+		apt-get install -y \
+		cron ffmpeg imagemagick \
+		libnss3-dev libatk-bridge2.0-0 libgtk-3.0
+
 
 ADD	. /wdill
 

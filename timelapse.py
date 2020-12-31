@@ -29,6 +29,7 @@ from sendEmail import sendErrorEmail
 globalPrefix = getConfigParameters('globalPrefix')
 globalMementoUrlDateTimeDelimeter = "*+*+*"
 globalRequestFilename = "twitter_requests_wdill.txt"
+processedRequestFilename = "twitter_requests_wdill_store.txt"
 #deprecated
 #globalDataFileName = '/home/anwala/wsdl/projects/timelapse/webshots/tumblrUrlsDataFile.txt'
 
@@ -368,12 +369,18 @@ def get1MementoPerYear(yearUrlDictionary, mementos, delimeterCharacter, numOfURL
 		print("mementos list length = 0")
 
 def getNumOfURLPosts(URL):
-	reqFile = open(globalRequestFilename, "r")
 	counter = 0
+	with open(globalRequestFilename, "r") as reqFile:
 	for entry in reqFile:
 		entryParts = entry.split(" <> ")
 		if entryParts[0] == URL and len(entryParts) > 4:
 			counter = counter + 1
+	
+	with open(processedRequestFilename, "r") as reqFile:
+		for entry in reqFile:
+			entryParts = entry.split(" <> ")
+			if entryParts[0] == URL and len(entryParts) > 4:
+				counter = counter + 1
 	return counter
 
 def getDateStr(dateObj):

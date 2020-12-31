@@ -653,7 +653,7 @@ def addMusic(folderName, selectionPath, startTime):
 		startTime = randrange(audioDuration)
 		endTime = startTime + videoDuration
 
-	params = ['ffmpeg', '-i', videoPath, '-ss', str(startTime), '-to', str(endTime), '-i', selectionPath, '-map', '0:v:0', '-map', '1:a:0', '-shortest', videoPath.replace(".mp4","WithAudio.mp4")]
+	params = ['ffmpeg', '-i', videoPath, '-ss', str(startTime), '-i', selectionPath, '-map', '0:v:0', '-map', '1:a:0', '-shortest', videoPath.replace(".mp4","WithAudio.mp4")]
 	subprocess.check_call(params)
 
 	# deletes mp4 file without audio

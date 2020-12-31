@@ -248,9 +248,9 @@ def getMementosPages(url):
 			numTries = 0
 			while( numTries < maxTries ):
 				numTries += 1
-			r = requests.get(timemapPrefix)
+				r = requests.get(timemapPrefix)
 				page = r.text
-
+				
 				if r.status_code != 200:
 					time.sleep(10)
 				else:
@@ -371,10 +371,10 @@ def get1MementoPerYear(yearUrlDictionary, mementos, delimeterCharacter, numOfURL
 def getNumOfURLPosts(URL):
 	counter = 0
 	with open(globalRequestFilename, "r") as reqFile:
-	for entry in reqFile:
-		entryParts = entry.split(" <> ")
-		if entryParts[0] == URL and len(entryParts) > 4:
-			counter = counter + 1
+		for entry in reqFile:
+			entryParts = entry.split(" <> ")
+			if entryParts[0] == URL and len(entryParts) > 4:
+				counter = counter + 1
 	
 	with open(processedRequestFilename, "r") as reqFile:
 		for entry in reqFile:
@@ -646,7 +646,7 @@ def generateMP4(folderName, beginYear, musicTrack, startTime, minDuration=4):
 			# create new video with lower fps
 			fps = videoDuration/minDuration
 			params = ['ffmpeg', '-r', str(fps), '-start_number', beginYear, '-i', '%d.png', '-s', '1024x768', '-pix_fmt', 'yuv420p', '-vcodec', 'libx264', fileName]
-		subprocess.check_call(params)
+			subprocess.check_call(params)
 		
 		if musicTrack == '' or startTime < 0:
 			file = open(os.path.join(os.path.dirname(__file__), globalPrefix+folderName+"/urlsFile.txt"))
@@ -782,91 +782,91 @@ def timelapse(url, screen_name = '', tweetID = '', musicTrack='', startTime=-1):
 				print("...done getting memento pages")
 				
 				if len(pages) > 0:
-				mementosList = []
-				for i in range(0,len(pages)):
-					mementos = getItemGivenSignature(pages[i])
-					mementosList.append(mementos)
-				# scrutiny - end
+					mementosList = []
+					for i in range(0,len(pages)):
+						mementos = getItemGivenSignature(pages[i])
+						mementosList.append(mementos)
+					# scrutiny - end
 
-				mementosList = sorted(mementosList, key=len)
+					mementosList = sorted(mementosList, key=len)
 
-				numOfURLPosts = getNumOfURLPosts(url)
-				yearUrlDictionary = {}
+					numOfURLPosts = getNumOfURLPosts(url)
+					yearUrlDictionary = {}
 
-				yearUrlDictionary = get1MementoPerYear(yearUrlDictionary, mementosList, globalMementoUrlDateTimeDelimeter, numOfURLPosts)
+					yearUrlDictionary = get1MementoPerYear(yearUrlDictionary, mementosList, globalMementoUrlDateTimeDelimeter, numOfURLPosts)
 
-				#sort by date
-				#this does not seem to return dictionary, list instead
-				sortedKeysOfYearUrlDictionary = sorted(yearUrlDictionary.keys())
-				
-				
-				lengthOfYearUrlDictionary = len(yearUrlDictionary)
-				if( lengthOfYearUrlDictionary > 0 ):
-
-					beginYear = str(sortedKeysOfYearUrlDictionary[0]) 
-					endYear = str(sortedKeysOfYearUrlDictionary[len(sortedKeysOfYearUrlDictionary)-1])
+					#sort by date
+					#this does not seem to return dictionary, list instead
+					sortedKeysOfYearUrlDictionary = sorted(yearUrlDictionary.keys())
 					
-					urlsFile.write("What Did " + url + " Look Like From " + beginYear + " To " + endYear + "?\n\n")
-					urlsFile.write("Links" + ":\n")
 					
+					lengthOfYearUrlDictionary = len(yearUrlDictionary)
+					if( lengthOfYearUrlDictionary > 0 ):
+
+						beginYear = str(sortedKeysOfYearUrlDictionary[0]) 
+						endYear = str(sortedKeysOfYearUrlDictionary[len(sortedKeysOfYearUrlDictionary)-1])
+						
+						urlsFile.write("What Did " + url + " Look Like From " + beginYear + " To " + endYear + "?\n\n")
+						urlsFile.write("Links" + ":\n")
+						
 
 
-				#print len(yearUrlDictionary), " years "
+					#print len(yearUrlDictionary), " years "
 
-				#for year,url in yearUrlDictionary.items():
-				#	print year, ",", url
-
-			
-				print("...taking screenshots")
-				result = takeScreenshots (yearUrlDictionary, mementoGIFsPath, urlsFile)
-				print("...done taking screenshots")
-
-				print("...done opening urlsFile.txt")
-				urlsFile.close()
+					#for year,url in yearUrlDictionary.items():
+					#	print year, ",", url
 
 				
-				if(result):
-					print("...labelling screenshots and converting to gif")
-					convertToAnimatedGIF(mementoGIFsPath)
-					print("...done labelling screenshots and converting to gif")
-					print("...optimizing Gifs")
-					optimizeGifs(mementoGIFsPath)
-					print("...done optimizing Gifs")
-					print("...creating mp4 file")
-					generateMP4(mementoGIFsPath, beginYear, musicTrack, startTime)
-					print("...done creating mp4 file")
+					print("...taking screenshots")
+					result = takeScreenshots (yearUrlDictionary, mementoGIFsPath, urlsFile)
+					print("...done taking screenshots")
 
-					'''
-					#this block has been deprecated - start
-					print "...prepending " + globalDataFileName + " with url: ", url
+					print("...done opening urlsFile.txt")
+					urlsFile.close()
 
-					tumblrDataFile = open(globalDataFileName, 'r')
-					tumblrDataFileLines = tumblrDataFile.readlines()
-					tumblrDataFile.close()
+					
+					if(result):
+						print("...labelling screenshots and converting to gif")
+						convertToAnimatedGIF(mementoGIFsPath)
+						print("...done labelling screenshots and converting to gif")
+						print("...optimizing Gifs")
+						optimizeGifs(mementoGIFsPath)
+						print("...done optimizing Gifs")
+						print("...creating mp4 file")
+						generateMP4(mementoGIFsPath, beginYear, musicTrack, startTime)
+						print("...done creating mp4 file")
 
-					tumblrDataFile = open(globalDataFileName, 'w')
+						'''
+						#this block has been deprecated - start
+						print "...prepending " + globalDataFileName + " with url: ", url
 
-					if( len(screen_name)>0 and len(tweetID)>0 ):
-						screen_name = screen_name.strip()
-						tweetID = tweetID.strip()
-						tumblrDataFile.write(url + "," + " [tumblrUploadIDPlaceHolder], " + screen_name + ", " + tweetID + "\n")
+						tumblrDataFile = open(globalDataFileName, 'r')
+						tumblrDataFileLines = tumblrDataFile.readlines()
+						tumblrDataFile.close()
+
+						tumblrDataFile = open(globalDataFileName, 'w')
+
+						if( len(screen_name)>0 and len(tweetID)>0 ):
+							screen_name = screen_name.strip()
+							tweetID = tweetID.strip()
+							tumblrDataFile.write(url + "," + " [tumblrUploadIDPlaceHolder], " + screen_name + ", " + tweetID + "\n")
+						else:
+							tumblrDataFile.write(url + "," + " [tumblrUploadIDPlaceHolder]\n")
+
+
+						tumblrDataFile.writelines(tumblrDataFileLines)
+						tumblrDataFile.close()
+						print "...done appending " + globalDataFileName + " with url"
+						#this block has been deprecated - end
+						'''
 					else:
-						tumblrDataFile.write(url + "," + " [tumblrUploadIDPlaceHolder]\n")
-
-
-					tumblrDataFile.writelines(tumblrDataFileLines)
-					tumblrDataFile.close()
-					print "...done appending " + globalDataFileName + " with url"
-					#this block has been deprecated - end
-					'''
-				else:
-					print('...deleting empty bad result:', possibleFolderNameToDelete)
-					#someThingWentWrongFlag = True could mean that the request to the server was not successful,
-					#but could be successful in the future
-					someThingWentWrongFlag = True
-					co = 'rm -r ' + possibleFolderNameToDelete
-					
-					subprocess.getoutput(co)
+						print('...deleting empty bad result:', possibleFolderNameToDelete)
+						#someThingWentWrongFlag = True could mean that the request to the server was not successful,
+						#but could be successful in the future
+						someThingWentWrongFlag = True
+						co = 'rm -r ' + possibleFolderNameToDelete
+						
+						subprocess.getoutput(co)
 				else:
 					print('...deleting empty bad result:', possibleFolderNameToDelete)
 					#someThingWentWrongFlag = True could mean that the request to the server was not successful,

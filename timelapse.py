@@ -631,9 +631,21 @@ def optimizeGifs(folderName):
 				return newfile
 
 
-def generateMP4(folderName, beginYear, musicTrack, startTime):
+def generateMP4(folderName, beginYear, musicTrack, startTime, minDuration=4):
 	if(len(folderName) > 0):
-		params = ['ffmpeg', '-r', '1', '-start_number', beginYear, '-i', '%d.png', '-s', '1024x768', '-pix_fmt', 'yuv420p', '-vcodec', 'libx264', folderName+'.mp4']
+		fileName = globalPrefix+folderName+'/'+folderName+'.mp4'
+		params = ['ffmpeg', '-r', '1', '-start_number', beginYear, '-i', '%d.png', '-s', '1024x768', '-pix_fmt', 'yuv420p', '-vcodec', 'libx264', fileName]
+		subprocess.check_call(params)
+
+		# increase fps if video duration does not meet minDuration requirement
+		videoDuration = getMP4Duration(fileName)
+		if videoDuration < minDuration:
+			# delete old video
+			subprocess.check_call(['rm', fileName])
+
+			# create new video with lower fps
+			fps = videoDuration/minDuration
+			params = ['ffmpeg', '-r', str(fps), '-start_number', beginYear, '-i', '%d.png', '-s', '1024x768', '-pix_fmt', 'yuv420p', '-vcodec', 'libx264', fileName]
 		subprocess.check_call(params)
 		
 		if musicTrack == '' or startTime < 0:
@@ -675,6 +687,12 @@ def addMusic(folderName, selectionPath, startTime):
 	# deletes mp4 file without audio
 	subprocess.check_call(['rm', videoPath])
 
+def getMP4Duration(videoPath):
+	duration = 0
+	if len(videoPath) > 0:
+		result = subprocess.check_output(['ffprobe', '-v', 'error', '-show_entries', 'format=duration', '-of', 'default=noprint_wrappers=1:nokey=1', videoPath]).decode("utf-8").strip()
+		duration = float(result)
+	return duration
 
 def getCategoriesFromWikipedia(searchQuery):
 	categories = []

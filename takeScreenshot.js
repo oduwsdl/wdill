@@ -3,6 +3,7 @@ const puppeteer = require('puppeteer')
 
 async function headless(uri, w, h, folderName, filename) {
 	const browser = await puppeteer.launch({
+		args: ['--no-sandbox'],
 		headless: true
 		//headless: false
 	});
@@ -27,9 +28,7 @@ async function headless(uri, w, h, folderName, filename) {
 		await page.goto(uri, {
 			waitUntil: 'networkidle2',
 			timeout: 60000,
-		});
-
-		await page.waitFor(5000);
+		}).catch(e => void 0);
 
 		await page.screenshot({
 			path: './'+folderName+ '/' + filename + '.png',

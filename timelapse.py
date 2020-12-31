@@ -243,9 +243,17 @@ def getMementosPages(url):
 			#old: page = commands.getoutput(co)
 
 			page = ''
+			maxTries = 3
+			numTries = 0
+			while( numTries < maxTries ):
+				numTries += 1
 			r = requests.get(timemapPrefix)
-			if( r.status_code == 200 ):
 				page = r.text
+
+				if r.status_code != 200:
+					time.sleep(10)
+				else:
+					break
 
 			try:
 				payload = json.loads(page)
@@ -748,6 +756,7 @@ def timelapse(url, screen_name = '', tweetID = '', musicTrack='', startTime=-1):
 				pages = getMementosPages(url)
 				print("...done getting memento pages")
 				
+				if len(pages) > 0:
 				mementosList = []
 				for i in range(0,len(pages)):
 					mementos = getItemGivenSignature(pages[i])
@@ -825,6 +834,14 @@ def timelapse(url, screen_name = '', tweetID = '', musicTrack='', startTime=-1):
 					print "...done appending " + globalDataFileName + " with url"
 					#this block has been deprecated - end
 					'''
+				else:
+					print('...deleting empty bad result:', possibleFolderNameToDelete)
+					#someThingWentWrongFlag = True could mean that the request to the server was not successful,
+					#but could be successful in the future
+					someThingWentWrongFlag = True
+					co = 'rm -r ' + possibleFolderNameToDelete
+					
+					subprocess.getoutput(co)
 				else:
 					print('...deleting empty bad result:', possibleFolderNameToDelete)
 					#someThingWentWrongFlag = True could mean that the request to the server was not successful,

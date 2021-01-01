@@ -174,7 +174,7 @@ def uploadAnimatedGifToSocialMedia(folderName, URL, queueOrPublish='queue'):
 			
 			print("...uploading to Instagram")
 			pythonVirtualEnvPath = getConfigParameters('pythonVirtualEnv1Path')
-			instaCaption = links[0].replace("\n","") + " #memento"
+			instaCaption = links.split("\n")[0] + " #memento"
 			
 			res = subprocess.check_output([pythonVirtualEnvPath, instaScript, username, password, browserStackUserID, browserStackKey, instaAppPath, uploadFile, instaCaption])
 			

@@ -5,6 +5,8 @@ import re
 import time
 from datetime import datetime
 
+import urllib
+from bs4 import BeautifulSoup
 import requests
 import subprocess
 import hashlib
@@ -137,10 +139,18 @@ def uploadAnimatedGifToSocialMedia(folderName, URL, queueOrPublish='queue'):
 		firstline = links[:indexOfNewLineCharacter]
 
 		beginYear, endYear = extractBeginAndEndYear(firstline)
-		gifAnimationFilename = getGifFilename(folderName)
+		#gifAnimationFilename = globalPrefix + folderName + '/' + getGifFilename(folderName)
 		mp4Filename = globalPrefix + folderName + '/' + folderName + 'WithAudio.mp4'
+		uploadFile = ""
+		if os.path.exists(mp4Filename):
+			uploadFile = mp4Filename
+		else:
+			for item in os.listdir(globalPrefix + folderName + '/'):
+				if item.endswith(".png"):
+					uploadFile = globalPrefix + folderName + '/' + item
+					break
 
-		if(len(mp4Filename) > 0):
+		if(len(uploadFile) > 0):
 			#instagram currently doesn't support posting videos via a web browser
 			'''
 			instaScript = os.path.join(os.path.dirname(__file__), globalPrefix+'instagram.js')
@@ -161,11 +171,13 @@ def uploadAnimatedGifToSocialMedia(folderName, URL, queueOrPublish='queue'):
 			browserStackUserID = getConfigParameters('browserStackUserID')
 			browserStackKey = getConfigParameters('browserStackKey')
 			instaAppPath = glob.glob(globalPrefix+"*.apk")[0]
-
+			
 			print("...uploading to Instagram")
 			pythonVirtualEnvPath = getConfigParameters('pythonVirtualEnv1Path')
 			instaCaption = links[0].replace("\n","") + " #memento"
-			res = subprocess.check_output([pythonVirtualEnvPath, instaScript, username, password, browserStackUserID, browserStackKey, instaAppPath, mp4Filename, instaCaption])
+			
+			res = subprocess.check_output([pythonVirtualEnvPath, instaScript, username, password, browserStackUserID, browserStackKey, instaAppPath, uploadFile, instaCaption])
+			
 			instagramLink = res.decode('utf-8')
 			instagramLink = instagramLink.replace('\n',"")
 			instagramLink = instagramLink.split('Instagram Link: ')[-1]
@@ -173,8 +185,10 @@ def uploadAnimatedGifToSocialMedia(folderName, URL, queueOrPublish='queue'):
 			print(instagramLink)
 			
 			print("...uploading to tumblr")
-			postID = client.create_video(globalBlogName, tags=[tags], state=queueOrPublish, caption=[links], data=mp4Filename)
-			#postID = client.create_photo(globalBlogName, tags=[tags], state=queueOrPublish, caption=[links], data=globalPrefix + folderName + '/' + gifAnimationFilename)
+			if uploadFile.endswith(".mp4"):
+				postID = client.create_video(globalBlogName, tags=[tags], state=queueOrPublish, caption=[links], data=uploadFile)
+			else:
+				postID = client.create_photo(globalBlogName, tags=[tags], state=queueOrPublish, caption=[links], data=uploadFile)
 			#write this postID to tumblrDataFile.txt
 			return postID['id'], beginYear, endYear, instagramLink
 

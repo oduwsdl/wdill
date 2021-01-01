@@ -826,15 +826,16 @@ def timelapse(url, screen_name = '', tweetID = '', musicTrack='', startTime=-1):
 
 					
 					if(result):
-						print("...labelling screenshots and converting to gif")
-						convertToAnimatedGIF(mementoGIFsPath)
-						print("...done labelling screenshots and converting to gif")
-						print("...optimizing Gifs")
-						optimizeGifs(mementoGIFsPath)
-						print("...done optimizing Gifs")
-						print("...creating mp4 file")
-						generateMP4(mementoGIFsPath, beginYear, musicTrack, startTime)
-						print("...done creating mp4 file")
+						if len(yearUrlDictionary > 1):
+							print("...labelling screenshots and converting to gif")
+							convertToAnimatedGIF(mementoGIFsPath)
+							print("...done labelling screenshots and converting to gif")
+							print("...optimizing Gifs")
+							optimizeGifs(mementoGIFsPath)
+							print("...done optimizing Gifs")
+							print("...creating mp4 file")
+							generateMP4(mementoGIFsPath, beginYear, musicTrack, startTime)
+							print("...done creating mp4 file")
 
 						'''
 						#this block has been deprecated - start

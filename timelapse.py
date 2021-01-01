@@ -351,8 +351,8 @@ def get1MementoPerYear(yearUrlDictionary, mementos, delimeterCharacter, numOfURL
 					#print " 1:", urlAndDateTime[1]
 					#print " 2:", urlAndDateTime[2]
 					
-					if date not in yearUrlDictionary:
-						yearUrlDictionary[date] = urlAndDateTime[0]
+					#if date not in yearUrlDictionary:
+						#yearUrlDictionary[date] = urlAndDateTime[0]
 					errorCount = errorCount + 1
 
 		if checkMissingYears:
@@ -538,7 +538,7 @@ def takeScreenshots(dictionaryOfItems, folderName, urlsFile, resolutionX = '1024
 
 	if( len(dictionaryOfItems)>0 ):
 
-		phantomscript = os.path.join(os.path.dirname(__file__), globalPrefix+'webshots.js')
+		#phantomscript = os.path.join(os.path.dirname(__file__), globalPrefix+'webshots.js')
 		sortedKeys = sorted(dictionaryOfItems.keys())
 
 		#for yearKey, urlValue in dictionaryOfItems.items():

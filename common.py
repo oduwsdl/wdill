@@ -5,7 +5,6 @@ import re
 import time
 from datetime import datetime
 
-import urllib
 from bs4 import BeautifulSoup
 import requests
 import subprocess
@@ -310,16 +309,20 @@ def getPageTitle(url):
 	if( len(url) > 0 ):
 
 		try:
+			'''
 			req = urllib.request.Request(url)
 			req.add_header('User-agent', 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.101 Safari/537.36')
 
 			response = urllib.request.urlopen(req)
-			soup = BeautifulSoup(response)
+			'''
 
-			titleOfPage = soup.title.string
+			response = requests.get(url)
+			soup = BeautifulSoup(response.text, 'html.parser')
+
+			titleOfPage = str(soup.title.string)
 
 			#this line added because some titles contain funny characters that generate encoding errors
-			titleOfPage = titleOfPage.encode('ascii', 'ignore')
+			#titleOfPage = titleOfPage.encode('ascii', 'ignore')
 		except:
 			titleOfPage = url + '...'
 

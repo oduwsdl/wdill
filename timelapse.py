@@ -826,7 +826,7 @@ def timelapse(url, screen_name = '', tweetID = '', musicTrack='', startTime=-1):
 
 					
 					if(result):
-						if len(yearUrlDictionary > 1):
+						if len(lengthOfYearUrlDictionary > 1):
 							print("...labelling screenshots and converting to gif")
 							convertToAnimatedGIF(mementoGIFsPath)
 							print("...done labelling screenshots and converting to gif")

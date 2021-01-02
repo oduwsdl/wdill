@@ -381,7 +381,7 @@ def getNumOfURLPosts(URL):
 			entryParts = entry.split(" <> ")
 			if entryParts[0] == URL and len(entryParts) > 4:
 				counter = counter + 1
-	return counter
+	return (counter - 1)
 
 def getDateStr(dateObj):
 	dateStr = str(dateObj.tm_year)+"-"

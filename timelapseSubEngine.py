@@ -353,6 +353,11 @@ def notifyOnPostApproved():
 						
 						folderName = getHashString(canonicalURL)
 						filename = './'+folderName+'/'+folderName+'OptDelay4.gif'
+						if not os.path.exists(filename):
+							for item in os.listdir('./'+folderName):
+								if item.endswith(".png"):
+									filename = './'+folderName+'/'+ item
+									break
 
 						modifyEntryFlag = makeStatusUpdateAndNotifyReferrer(statusUpdateMessage, screenNameOfUserWhoSuggestedURI, tweetID, URL, link, instaLink, filename)
 

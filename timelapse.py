@@ -722,10 +722,10 @@ def isWikiPageValid(wikiPage, url):
 
 
 def determineCategory(wikiCategories):
-	categories = {'education': ['education', 'learn', 'teach'],
+	categories = {'education': ['education', 'learn', 'teach', 'university', 'school', 'college'],
 					'travel': ['travel', 'vacation', 'holidays', 'flights', 'rental'],
 					'government': ['government', 'federal'],
-					'medical': ['medical', 'medicine', 'health'],
+					'medical': ['medical', 'medicine', 'health', 'disease'],
 					'media': ['media', 'video', 'news', 'television', 'magazine', 'blog'],
 					'retail': ['retail', 'stores', 'supermarket', 'shopping'],
 					'community': ['community', 'communities']}

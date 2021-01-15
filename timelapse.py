@@ -555,10 +555,10 @@ def takeScreenshots(dictionaryOfItems, folderName, urlsFile, resolutionX = '1024
 
 				imagePath = os.path.join(os.path.dirname(__file__), globalPrefix+folderName+'/'+str(yearKey)+'.png')
 				font = os.path.join(os.path.dirname(__file__), globalPrefix+'LiberationSerif.ttf')
-				addWatermark(imagePath, dictionaryOfItems[yearKey][1], font, 20, 700)
+				addWatermark(imagePath, dictionaryOfItems[yearKey][1], font, 20, 640)
 				archive = re.findall(r'(^https?:\/\/([a-zA-z]|\.|\-)+)', urlValue)
 				archive = re.sub(r'^https?:\/\/', "", archive[0][0])
-				addWatermark(imagePath, archive, font, 20, 735)
+				addWatermark(imagePath, archive, font, 20, 675)
 			except:
 				print("Error occured when processing the following memento")
 				print(urlValue)

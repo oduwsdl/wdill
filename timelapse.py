@@ -631,22 +631,19 @@ def optimizeGifs(folderName):
 				return newfile
 
 
-def generateMP4(folderName, beginYear, musicTrack, startTime, minDuration=4):
+def generateMP4(folderName, musicTrack, startTime, minDuration=4):
 	if(len(folderName) > 0):
 		fileName = globalPrefix+folderName+'/'+folderName+'.mp4'
-		params = ['ffmpeg', '-r', '1', '-start_number', beginYear, '-i', '%d.png', '-s', '1024x768', '-pix_fmt', 'yuv420p', '-vcodec', 'libx264', fileName]
-		subprocess.check_call(params)
+		fps = 1
+
+		numImages = getNumOfImages(globalPrefix+folderName)
 
 		# increase fps if video duration does not meet minDuration requirement
-		videoDuration = getMP4Duration(fileName)
-		if videoDuration < minDuration:
-			# delete old video
-			subprocess.check_call(['rm', fileName])
-
-			# create new video with lower fps
-			fps = videoDuration/minDuration
-			params = ['ffmpeg', '-r', str(fps), '-start_number', beginYear, '-i', '%d.png', '-s', '1024x768', '-pix_fmt', 'yuv420p', '-vcodec', 'libx264', fileName]
-			subprocess.check_call(params)
+		if numImages < minDuration:
+			fps = numImages/minDuration
+		
+		params = ['ffmpeg', '-r', str(fps), '-pattern_type', 'glob', '-i', globalPrefix+folderName+'/*.png', '-s', '1024x768', '-pix_fmt', 'yuv420p', '-vcodec', 'libx264', fileName]
+		subprocess.check_call(params)
 		
 		if musicTrack == '' or startTime < 0:
 			file = open(os.path.join(os.path.dirname(__file__), globalPrefix+folderName+"/urlsFile.txt"))
@@ -686,6 +683,17 @@ def addMusic(folderName, selectionPath, startTime):
 
 	# deletes mp4 file without audio
 	subprocess.check_call(['rm', videoPath])
+
+def getNumOfImages(dirPath):
+	numImages = 0
+	if len(dirPath) > 0:
+		ls = subprocess.Popen(['ls', dirPath], stdout=subprocess.PIPE)
+		grep = subprocess.Popen(['grep', '.png'], stdin=ls.stdout, stdout=subprocess.PIPE)
+		result = subprocess.Popen(['wc', '-l'], stdin=grep.stdout, stdout=subprocess.PIPE)
+		ls.stdout.close()
+		out, _ = result.communicate()
+		numImages = int(out.decode("utf-8").strip())
+	return numImages
 
 def getMP4Duration(videoPath):
 	duration = 0

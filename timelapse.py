@@ -368,6 +368,66 @@ def get1MementoPerYear(yearUrlDictionary, mementos, delimeterCharacter, numOfURL
 	else:
 		print("mementos list length = 0")
 
+
+def get1MementoPerMonth(monthUrlDictionary, mementos, delimeterCharacter, numOfURLPosts, checkMissingMonths=True):
+
+	if( len(mementos)>0 ):
+		errorCount = 1
+		URLMonths = []
+
+		for i in range(0, len(mementos)):
+			numPostCounter = 0
+			prevMementoMonth = 0
+			for meme in mementos[i]:
+
+				urlAndDateTime = meme.split(delimeterCharacter)
+				#print urlAndDateTime
+				try:
+					date = time.strptime(urlAndDateTime[1], '%a, %d %b %Y %H:%M:%S %Z')
+					dictKey = str(date.tm_year) + '-' + '{:02d}'.format(date.tm_mon)
+					
+					if dictKey not in URLMonths:
+						URLMonths.append(dictKey)
+
+					if dictKey not in monthUrlDictionary:
+						if numPostCounter == numOfURLPosts:
+							testMemento = requests.get(urlAndDateTime[0])
+							if testMemento.status_code < 400:
+								dateStr = getDateStr(date)
+								monthUrlDictionary[dictKey] = (urlAndDateTime[0], dateStr)
+						else:
+							numPostCounter = numPostCounter + 1
+
+					if prevMementoMonth != 0 and date.tm_month != prevMementoMonth:
+						numPostCounter = 0
+
+					prevMementoMonth = date.tm_month
+
+				except:
+					date = errorCount
+					print("date exception, ", urlAndDateTime[1])
+					#print " 0:", urlAndDateTime[0]
+					#print " 1:", urlAndDateTime[1]
+					#print " 2:", urlAndDateTime[2]
+					
+					#if date not in yearUrlDictionary:
+						#yearUrlDictionary[date] = urlAndDateTime[0]
+					errorCount = errorCount + 1
+
+		if checkMissingMonths:
+			for month in URLMonths:
+				if month not in monthUrlDictionary:
+					monthUrlDictionary = get1MementoPerMonth(monthUrlDictionary, mementos, delimeterCharacter, 0, False)
+					break
+
+			
+		return monthUrlDictionary
+
+
+	else:
+		print("mementos list length = 0")
+
+
 def getNumOfURLPosts(URL):
 	counter = 0
 	with open(globalRequestFilename, "r") as reqFile:
@@ -805,6 +865,10 @@ def createTitleSlide(url, beginYear, endYear, folderName):
 					yearUrlDictionary = {}
 
 					yearUrlDictionary = get1MementoPerYear(yearUrlDictionary, mementosList, globalMementoUrlDateTimeDelimeter, numOfURLPosts)
+
+					# get mementos per month if the URL has mementos for only one year
+					if len(yearUrlDictionary) < 2:
+						yearUrlDictionary = get1MementoPerMonth({}, mementosList, globalMementoUrlDateTimeDelimeter, numOfURLPosts)
 
 					#sort by date
 					#this does not seem to return dictionary, list instead

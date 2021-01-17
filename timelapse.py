@@ -760,7 +760,10 @@ def determineMusicPath(category):
 	path = os.path.join(os.path.dirname(__file__), globalPrefix+'music/'+genres[category][genreIndex]+'/')
 	return path
 
-def timelapse(url, screen_name = '', tweetID = '', musicTrack='', startTime=-1):
+def createTitleSlide(url, beginYear, endYear, folderName):
+	scriptPath = globalPrefix + 'wdill_titleSlide_generator.sh'
+	titleSlidePath = globalPrefix + folderName + '/titleSlide.png'
+	subprocess.check_call([scriptPath, url, beginYear, endYear, titleSlidePath])
 
 	someThingWentWrongFlag = False
 	if(len(url) > 0):
@@ -834,7 +837,9 @@ def timelapse(url, screen_name = '', tweetID = '', musicTrack='', startTime=-1):
 
 					
 					if(result):
-						if (lengthOfYearUrlDictionary > 1):
+						if (lengthOfYearUrlDictionary > 0):
+							print("...creating title slide")
+							createTitleSlide(url, beginYear, endYear, mementoGIFsPath)
 							print("...labelling screenshots and converting to gif")
 							convertToAnimatedGIF(mementoGIFsPath)
 							print("...done labelling screenshots and converting to gif")

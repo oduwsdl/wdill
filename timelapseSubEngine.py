@@ -150,6 +150,7 @@ def postToTumblrQueue():
 				screen_name = nominationData[1].strip()
 				tweetDateTimeString = nominationData[2].strip()
 				tweetID = nominationData[3].strip()
+				dateRange = nominationData[4].strip()
 
 				canonicalURL = getCanonicalUrl(URL)
 				folderName = ''
@@ -293,7 +294,7 @@ def notifyOnPostApproved():
 			)
 			'''
 			#this url has been posted on queue, so check if approved published
-			if( len(nominationData) == 7 ):
+			if( len(nominationData) == 8 ):
 
 				URL = nominationData[0].strip()
 				tweetDateTime = nominationData[2].strip()

@@ -14,6 +14,7 @@ import re
 import wikipedia
 from random import randrange
 from tinytag import TinyTag
+from dateutil import parser
 
 from subprocess import call
 from os import walk
@@ -433,13 +434,13 @@ def getNumOfURLPosts(URL):
 	with open(globalRequestFilename, "r") as reqFile:
 		for entry in reqFile:
 			entryParts = entry.split(" <> ")
-			if entryParts[0] == URL and len(entryParts) > 4:
+			if entryParts[0] == URL and len(entryParts) > 5:
 				counter = counter + 1
 	
 	with open(processedRequestFilename, "r") as reqFile:
 		for entry in reqFile:
 			entryParts = entry.split(" <> ")
-			if entryParts[0] == URL and len(entryParts) > 4:
+			if entryParts[0] == URL and len(entryParts) > 5:
 				counter = counter + 1
 	return (counter - 1)
 
@@ -825,6 +826,25 @@ def createTitleSlide(url, beginYear, endYear, folderName):
 	titleSlidePath = globalPrefix + folderName + '/titleSlide.png'
 	subprocess.check_call([scriptPath, url, beginYear, endYear, titleSlidePath])
 
+def filterMementosWithDateRange(mementos, dateRange):
+	fromDate, toDate = dateRange.split(' - ')
+	fromDate = parser.parse(fromDate)
+	toDate = parser.parse(toDate)
+
+	filteredMementos = []
+	for meme in mementos:
+		_, memeDate = meme.split(globalMementoUrlDateTimeDelimeter)
+		memeDate = parser.parse(memeDate)
+		fromDate = fromDate.replace(tzinfo=memeDate.tzinfo)
+		toDate = toDate.replace(tzinfo=memeDate.tzinfo)
+		
+		if memeDate >= fromDate and memeDate <= toDate:
+			filteredMementos.append(meme)
+
+	return filteredMementos
+
+def timelapse(url, dateRange=None, screen_name = '', tweetID = '', musicTrack='', startTime=-1):
+
 	someThingWentWrongFlag = False
 	if(len(url) > 0):
 		url = url.lower()
@@ -856,6 +876,11 @@ def createTitleSlide(url, beginYear, endYear, folderName):
 					mementosList = []
 					for i in range(0,len(pages)):
 						mementos = getItemGivenSignature(pages[i])
+
+						# filter mementos by date range if provided
+						if dateRange:
+							mementos = filterMementosWithDateRange(mementos, dateRange)
+						
 						mementosList.append(mementos)
 					# scrutiny - end
 

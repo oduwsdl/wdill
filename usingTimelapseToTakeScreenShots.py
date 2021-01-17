@@ -25,16 +25,19 @@ for i in range(0,len(nominationTuples)):
 	nominationData = nominationTuples[i].split(' <> ')
 	
 	#this url has not been published
-	if( len(nominationData) < 5):
+	if( len(nominationData) < 6):
 
 		URL = nominationData[0].strip()
 		#screen_name = nomimationData[1].strip()
 		#datetime = nomimationData[2].strip()
 		#tweetID = nomimationData[3].strip()
+		dateRange = nominationData[4].strip()
+		if dateRange == '0 - 0':
+			dateRange = None
 
 		os.chdir(originalPath)
 		print("...sending "+ URL+ " to timelapse to take pictures")
-		timelapse(URL)
+		timelapse(URL, dateRange=dateRange)
 
 print('...calling timelapseSubEngine.py')
 #MOD

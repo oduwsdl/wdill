@@ -8,6 +8,8 @@ import math
 from bs4 import BeautifulSoup
 from datetime import datetime
 from urllib.parse import urlparse
+import re
+from dateutil import parser
 
 from sendEmail import sendEmail, sendErrorEmail
 from timelapse import getCanonicalUrl
@@ -149,6 +151,23 @@ def getRequestUrls():
 
                 print(localTimeTweet, ",tweet_id:", tweet.id, ",", tweet.user.screen_name, " - ", tweet.text)
                 print("")
+                
+                # parse dates if daterange provided
+                regexStr = r"(\d{4}(?:\/\d{2}){0,2})\ ?\-\ ?(\d{4}(?:\/\d{2}){0,2})"
+                res = re.search(regexStr, tweet.text)
+                fromDate = "0"
+                toDate = "0"
+                if res:
+                    try:
+                        fromD, toD = res.group(1, 2)
+                        fromD = parser.parse(fromD)
+                        toD = parser.parse(toD)
+                        if fromD < toD and (toD - fromD) > datetime.timedelta(days=30):
+                            fromDate = fromD.isoformat()
+                            toDate = toD.isoformat()
+                    except:
+                        print("Date range parsing failed")
+                dateRange = fromDate+' - '+toDate
 
                 shortTwitterUrls = checkForRequestTweetSignature(tweet.text)
                 #print "NEW TWEET TODAY, from: ", tweet.user.screen_name
@@ -172,7 +191,7 @@ def getRequestUrls():
                                 expandedUrlsDictionary[tweet.user.screen_name] = [potentialExpandedUrl]
 
                             #add the created_at date for this tweet
-                            globalDictionaryOfTweetExtraInformation[potentialExpandedUrl] = [tweet.id, localTimeTweet]
+                            globalDictionaryOfTweetExtraInformation[potentialExpandedUrl] = [tweet.id, localTimeTweet, dateRange]
 
             
             if( isTweetPresentFlag ):
@@ -500,7 +519,7 @@ def extractRequestsFromTwitter():
                     if( goAheadFlag ):
                         print("...writing requests to file")
 
-                        requestsFile.write(u + ' <> ' + screen_name + ' <> ' + str(globalDictionaryOfTweetExtraInformation[u][1]) + ' <> ' + str(globalDictionaryOfTweetExtraInformation[u][0]) + '\n')
+                        requestsFile.write(u + ' <> ' + screen_name + ' <> ' + str(globalDictionaryOfTweetExtraInformation[u][1]) + ' <> ' + str(globalDictionaryOfTweetExtraInformation[u][0]) + ' <> ' + str(globalDictionaryOfTweetExtraInformation[u][2]) + '\n')
                         
                 except:
                     print("")

@@ -911,7 +911,7 @@ def createTitleSlide(url, beginYear, endYear, folderName):
 							optimizeGifs(mementoGIFsPath)
 							print("...done optimizing Gifs")
 							print("...creating mp4 file")
-							generateMP4(mementoGIFsPath, beginYear, musicTrack, startTime)
+							generateMP4(mementoGIFsPath, musicTrack, startTime)
 							print("...done creating mp4 file")
 
 						'''

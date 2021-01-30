@@ -24,6 +24,7 @@ What Did It Look Like is heavily implemented in [Python 3.x](https://docs.python
 * [TLDextract](https://github.com/john-kurkowski/tldextract)
 * [Tweepy](https://www.tweepy.org/)
 * [Wikipedia](https://github.com/goldsmith/Wikipedia)
+* [Dateutil](https://github.com/dateutil/dateutil/)
 
 The JavaScript dependencies include:
 * [Async](https://caolan.github.io/async/v3/)

@@ -8,3 +8,4 @@ tinytag==1.4.0
 tldextract==2.2.3
 tweepy==3.9.0
 wikipedia==1.4.0
+python-dateutil==2.8.1

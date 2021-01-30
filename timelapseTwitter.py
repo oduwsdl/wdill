@@ -92,7 +92,7 @@ def checkForRequestTweetSignature(tweet):
         indexOfRequestHashtag = tweet.find(whatDidItLookLikeTwitterRequestHashtag)
         if(indexOfRequestHashtag > -1):
             #extract url from text
-            return tweet[indexOfRequestHashtag + len(whatDidItLookLikeTwitterRequestHashtag):].split(',')
+            return tweet[indexOfRequestHashtag + len(whatDidItLookLikeTwitterRequestHashtag):].split()[0].split(',')
         else:
             return ''
     else:

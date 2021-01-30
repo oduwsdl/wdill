@@ -153,7 +153,7 @@ def getRequestUrls():
                 print("")
                 
                 # parse dates if daterange provided
-                regexStr = r"(\d{4}(?:\/\d{2}){0,2})\ ?\-\ ?(\d{4}(?:\/\d{2}){0,2})"
+                regexStr = r"(\d{4}(?:\-\d{2}){0,2}).+(\d{4}(?:\-\d{2}){0,2})"
                 res = re.search(regexStr, tweet.text)
                 fromDate = "0"
                 toDate = "0"
@@ -162,7 +162,7 @@ def getRequestUrls():
                         fromD, toD = res.group(1, 2)
                         fromD = parser.parse(fromD)
                         toD = parser.parse(toD)
-                        if fromD < toD and (toD - fromD) > datetime.timedelta(days=30):
+                        if fromD <= toD:
                             fromDate = fromD.isoformat()
                             toDate = toD.isoformat()
                     except:

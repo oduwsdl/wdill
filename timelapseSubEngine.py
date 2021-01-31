@@ -144,7 +144,7 @@ def postToTumblrQueue():
 				6: POST-FLAG
 			'''
 			#this url has not been posted, so post to queue
-			if( len(nominationData) < 5):
+			if( len(nominationData) < 6):
 
 				URL = nominationData[0].strip()
 				screen_name = nominationData[1].strip()

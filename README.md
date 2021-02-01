@@ -37,7 +37,7 @@ The JavaScript dependencies include:
   * [Tumblr API]()
   * [Instagram  login](https://www.instagram.com/)
   * [BrowserStack Access Key](https://www.browserstack.com/)
-* The process will run as a cron job daily at 12am. To modify the timing, edit the [crontab](https://github.com/dhruv282/wdill/blob/master/crontab) file following [this](https://man7.org/linux/man-pages/man5/crontab.5.html) documentation as needed.
+* The process will run as a cron job every 6 hours. To modify the timing, edit the [crontab](https://github.com/dhruv282/wdill/blob/master/crontab) file following [this](https://man7.org/linux/man-pages/man5/crontab.5.html) documentation as needed.
 
 
 ### Running as a Docker Container

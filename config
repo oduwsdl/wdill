@@ -1,10 +1,10 @@
 {
-	"nominationDifferential": 365,
+	"nominationDifferential": 30,
 	"mementoAggregator": "http://timetravel.mementoweb.org/timemap/json/",
 	"latentMementoAggregator": "http://mementoproxy.cs.odu.edu/aggr/timemap/link/1/",
 
-	"maxTimesToRunTME": 2,
-	"maxTimesToRunTSE": 2,
+	"maxTimesToRunTME": 4,
+	"maxTimesToRunTSE": 4,
 	"globalBlogName": "blog.tumblr.com",
 	"globalPrefix": "/AbsolutePathToProjectFolderHere/ProjectFolderNameHere",
 

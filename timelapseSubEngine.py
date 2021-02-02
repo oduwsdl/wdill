@@ -298,7 +298,7 @@ def notifyOnPostApproved():
 
 				URL = nominationData[0].strip()
 				tweetDateTime = nominationData[2].strip()
-				postID = nominationData[4].strip()
+				postID = nominationData[5].strip()
 				canonicalURL = getCanonicalUrl(URL)
 
 				formattedTag = getFormattedTagURL(canonicalURL)
@@ -349,8 +349,8 @@ def notifyOnPostApproved():
 
 						screenNameOfUserWhoSuggestedURI = nominationData[1].strip()
 						tweetID = nominationData[3].strip()
-						instaLink = nominationData[5].strip()
-						statusUpdateMessage = nominationData[6].strip()
+						instaLink = nominationData[6].strip()
+						statusUpdateMessage = nominationData[7].strip()
 						
 						folderName = getHashString(canonicalURL)
 						filename = './'+folderName+'/'+folderName+'OptDelay4.gif'

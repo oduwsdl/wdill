@@ -906,6 +906,11 @@ def timelapse(url, dateRange=None, screen_name = '', tweetID = '', musicTrack=''
 						beginYear = str(sortedKeysOfYearUrlDictionary[0]) 
 						endYear = str(sortedKeysOfYearUrlDictionary[len(sortedKeysOfYearUrlDictionary)-1])
 						
+						if dateRange:
+							dates = dateRange.split(' - ')
+							beginYear = dates[0]
+							endYear = dates[1]
+
 						urlsFile.write("What Did " + url + " Look Like From " + beginYear + " To " + endYear + "?\n\n")
 						urlsFile.write("Links" + ":\n")
 						

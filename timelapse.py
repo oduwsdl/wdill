@@ -823,7 +823,7 @@ def determineMusicPath(category):
 
 def createTitleSlide(url, beginYear, endYear, folderName):
 	scriptPath = globalPrefix + 'wdill_titleSlide_generator.sh'
-	titleSlidePath = globalPrefix + folderName + '/titleSlide.png'
+	titleSlidePath = globalPrefix + folderName + '/00_titleSlide.png'
 	subprocess.check_call([scriptPath, url, beginYear, endYear, titleSlidePath])
 
 def filterMementosWithDateRange(mementos, dateRange):

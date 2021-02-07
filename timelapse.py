@@ -399,10 +399,10 @@ def get1MementoPerMonth(monthUrlDictionary, mementos, delimeterCharacter, numOfU
 						else:
 							numPostCounter = numPostCounter + 1
 
-					if prevMementoMonth != 0 and date.tm_month != prevMementoMonth:
+					if prevMementoMonth != 0 and date.tm_mon != prevMementoMonth:
 						numPostCounter = 0
 
-					prevMementoMonth = date.tm_month
+					prevMementoMonth = date.tm_mon
 
 				except:
 					date = errorCount

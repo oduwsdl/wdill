@@ -3,8 +3,8 @@
 	"mementoAggregator": "http://timetravel.mementoweb.org/timemap/json/",
 	"latentMementoAggregator": "http://mementoproxy.cs.odu.edu/aggr/timemap/link/1/",
 
-	"maxTimesToRunTME": 4,
-	"maxTimesToRunTSE": 4,
+	"maxTimesToRunTME": 24,
+	"maxTimesToRunTSE": 24,
 	"globalBlogName": "blog.tumblr.com",
 	"globalPrefix": "/AbsolutePathToProjectFolderHere/ProjectFolderNameHere",
 

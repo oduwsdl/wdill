@@ -1,2 +1,2 @@
-0 */6 * * * root <WDILL_PATH>/execute_wdill.sh >> /var/log/cron.log 2>&1
+0 * * * * root <WDILL_PATH>/execute_wdill.sh >> /var/log/cron.log 2>&1
 # An empty line is required at the end of this file for a valid cron file.

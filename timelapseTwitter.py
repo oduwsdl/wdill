@@ -161,19 +161,16 @@ def getRequestUrls():
                 # parse dates if daterange provided
                 regexStr = r"(\d{4}(?:\-\d{2}){0,2}).+(\d{4}(?:\-\d{2}){0,2})"
                 res = re.search(regexStr, tweet.text)
-                fromDate = "0"
-                toDate = "0"
+                dateRange = "0 - 0"
                 if res:
                     try:
                         fromD, toD = res.group(1, 2)
-                        fromD = parser.parse(fromD)
-                        toD = parser.parse(toD)
-                        if fromD <= toD:
-                            fromDate = fromD.isoformat()
-                            toDate = toD.isoformat()
+                        fromDate = parser.parse(fromD)
+                        toDate = parser.parse(toD)
+                        if fromDate <= toDate:
+                            dateRange = fromD+' - '+toD
                     except:
                         print("Date range parsing failed")
-                dateRange = fromDate+' - '+toDate
 
                 shortTwitterUrls = checkForRequestTweetSignature(tweet.text)
                 #print "NEW TWEET TODAY, from: ", tweet.user.screen_name

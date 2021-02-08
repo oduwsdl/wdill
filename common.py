@@ -326,4 +326,4 @@ def getPageTitle(url):
 		except:
 			titleOfPage = url + '...'
 
-	return titleOfPage
+	return titleOfPage.replace("\n", "")

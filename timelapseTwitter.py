@@ -284,18 +284,25 @@ def updateStatus(statusUpdateString, screen_name = '', tweet_id = ''):
         else:
             api.update_status(statusUpdateString)
 
-def updateStatusWithMedia(statusUpdateString, filename, screen_name = '', tweet_id = ''):
+def updateStatusWithMedia(statusUpdateString, filename, tweet_id = '', screen_name = ''):
 
     screen_name = screen_name.strip()
     tweet_id = tweet_id.strip()
 
     if(len(statusUpdateString) > 0 and len(filename) > 0):
-        if(len(tweet_id) > 0 and len(screen_name) > 0):
+        
+        res = api.media_upload(filename=filename)
+        
+        if(len(tweet_id) > 0):
 
             tweet_id = int(tweet_id)
-            api.update_with_media(filename, '@'+ screen_name + ', ' + statusUpdateString, tweet_id)
+
+            if len(screen_name) > 0:
+                statusUpdateString = '@'+ screen_name + ' ' + statusUpdateString
+
+            api.update_status(statusUpdateString, in_reply_to_status_id=tweet_id, media_ids=[res.media_id])
         else:
-            api.update_with_media(filename, statusUpdateString)
+            api.update_status(statusUpdateString, media_ids=[res.media_id])
 
 def sendSomeoneADirectMessage(screen_name, message):
     if(len(screen_name) > 0):

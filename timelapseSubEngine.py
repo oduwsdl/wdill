@@ -88,7 +88,7 @@ def makeStatusUpdateAndNotifyReferrer(twitterStatusUpdateMessage, screen_nameOfU
 			
 			print('...status notification', notificationMessage)
 			#MOD
-			updateStatusWithMedia(statusUpdateString=notificationMessage, filename=filename, screen_name=screen_nameOfUserWhoSuggestedUri, tweet_id=tweet_id)
+			updateStatusWithMedia(statusUpdateString=notificationMessage, filename=filename, tweet_id=tweet_id, screen_name=screen_nameOfUserWhoSuggestedUri)
 			modifyEntryFlag = True
 		except:
 			exc_type, exc_obj, exc_tb = sys.exc_info()

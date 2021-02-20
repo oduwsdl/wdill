@@ -71,7 +71,7 @@ def expandUrl(url):
         req = requests.get(url)
         url = req.url
 
-        if len(req.history) > 2:
+        if len(req.history) >= 2:
             url = req.history[1].url
         
         return url

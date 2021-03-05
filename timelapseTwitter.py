@@ -97,6 +97,10 @@ def checkForRequestTweetSignature(tweet):
 
         indexOfRequestHashtag = tweet.find(whatDidItLookLikeTwitterRequestHashtag)
         if(indexOfRequestHashtag > -1):
+            # convert ', ' delimited URLs to ',' delimited
+            if ', ' in tweet:
+                tweet = tweet.replace(', ', ',')
+            
             #extract url from text
             return tweet[indexOfRequestHashtag + len(whatDidItLookLikeTwitterRequestHashtag):].split()[0].split(',')
         else:

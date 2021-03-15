@@ -4,3 +4,4 @@
 *.md~
 *.py~
 config~
+node_modules

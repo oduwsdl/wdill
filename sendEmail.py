@@ -5,14 +5,14 @@ from getConfig import getConfigParameters
 
 def sendErrorEmail(errorMessage, subject='Error Message'):
 
-    sender = getConfigParameters('senderEmail')
-    recipientsCommaDelimited = getConfigParameters('receiversEmail')
-    recipientsCommaDelimited = recipientsCommaDelimited.split(', ')
+	sender = getConfigParameters('senderEmail')
+	recipientsCommaDelimited = getConfigParameters('receiversEmail')
+	recipientsCommaDelimited = recipientsCommaDelimited.split(', ')
 
-    if( len(errorMessage) > 0 and len(subject) > 0 and len(recipientsCommaDelimited) > 0 and len(sender) > 0 ):
-        
-        #mod1
-        sendEmail(sender, recipientsCommaDelimited, subject, errorMessage)
+	if( len(errorMessage) > 0 and len(subject) > 0 and len(recipientsCommaDelimited) > 0 and len(sender) > 0 ):
+		
+		#mod1
+		sendEmail(sender, recipientsCommaDelimited, subject, errorMessage)
 
 def sendEmail(sender, receiversArray, subject, message):
 
@@ -32,8 +32,8 @@ def sendEmail(sender, receiversArray, subject, message):
 
 		try:
 		   smtpObj = smtplib.SMTP(mailServer)
-		   smtpObj.sendmail(sender, receiversArray, message)         
-		   print "Successfully sent email"
+		   smtpObj.sendmail(sender, receiversArray, message)		 
+		   print("Successfully sent email")
 		except:
-		   print "Error: unable to send email"
-		   print traceback.print_exception(sys.exc_type, sys.exc_value, sys.exc_traceback,limit=2,file=sys.stdout)
+		   print("Error: unable to send email")
+		   print(traceback.print_exception(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2],limit=2,file=sys.stdout))

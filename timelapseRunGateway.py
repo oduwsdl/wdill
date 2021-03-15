@@ -37,7 +37,7 @@ def checkRunCount(maximumRun, signatureCharacter, runCountFileName):
 		lines = runFile.readlines()
 		runFile.close()
 	except:
-		print traceback.print_exception(sys.exc_type, sys.exc_value, sys.exc_traceback,limit=2,file=sys.stdout)
+		print(traceback.print_exception(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2],limit=2,file=sys.stdout))
 		continueFlag = False
 
 	today = datetime.date.today()
@@ -73,7 +73,7 @@ def checkRunCount(maximumRun, signatureCharacter, runCountFileName):
 		runFile.write(whatToWrite)
 		runFile.close()
 	except:
-		print traceback.print_exception(sys.exc_type, sys.exc_value, sys.exc_traceback,limit=2,file=sys.stdout)
+		print(traceback.print_exception(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2],limit=2,file=sys.stdout))
 		continueFlag = False
 
 	return continueFlag

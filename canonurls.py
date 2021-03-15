@@ -14,9 +14,9 @@ import optparse
 import os
 import sys
 
-import cookielib
-import httplib
-import urlparse
+import http.cookiejar
+import http.client
+import urllib.parse
 
 # We have to do the HTTP queries by hand because of urllib bugs and
 # sites that misbehave if they see its default user-agent.  This means
@@ -31,14 +31,14 @@ class HTTPRequest(object):
     """
 
     def __init__(self, url, headers={}, method='GET'):
-        self._url = urlparse.urlsplit(urlparse.urldefrag(url)[0])
+        self._url = urllib.parse.urlsplit(urllib.parse.urldefrag(url)[0])
         self._headers = {
           "User-Agent":
             "Mozilla/5.0 (Macintosh; rv:24.0) Gecko/20100101 Firefox/24.0"
         }
         self._method = method
 
-        for key, value in headers.items():
+        for key, value in list(headers.items()):
             self.add_header(key, value)
 
     def has_header(self, name):
@@ -72,9 +72,9 @@ class HTTPRequest(object):
 
     def fire(self):
         if self._url.scheme == 'http':
-            conn = httplib.HTTPConnection(self._url.netloc, timeout=30)
+            conn = http.client.HTTPConnection(self._url.netloc, timeout=30)
         elif self._url.scheme == 'https':
-            conn = httplib.HTTPSConnection(self._url.netloc, timeout=30)
+            conn = http.client.HTTPSConnection(self._url.netloc, timeout=30)
         else:
             raise IOError("unsupported URL '%s'" % self.get_full_url())
         path = self._url.path
@@ -195,13 +195,13 @@ def precanonize(url):
 # "http://foo.com/" and removes empty params/query/fragment.
 def postcanonize(url):
     (scheme, netloc, path, params, query, fragment) = \
-        urlparse.urlparse(url)
+        urllib.parse.urlparse(url)
     if (scheme == 'http' or scheme == 'https') and path == '':
         path = '/'
-    return urlparse.urlunparse((scheme, netloc, path, params, query, fragment))
+    return urllib.parse.urlunparse((scheme, netloc, path, params, query, fragment))
 
 def is_siteroot(url):
-    parsed = urlparse.urlparse(url)
+    parsed = urllib.parse.urlparse(url)
     return ((parsed.path == '' or parsed.path == '/')
             and parsed.params == ''
             and parsed.query == ''
@@ -212,7 +212,7 @@ def chase_redirects(orig_url):
     if mypid is None: mypid = os.getpid()
 
     seen = set()
-    cookies = cookielib.CookieJar()
+    cookies = http.cookiejar.CookieJar()
     orig_url = orig_url.strip()
     url = precanonize(orig_url)
     log_start(orig_url)
@@ -249,7 +249,7 @@ def chase_redirects(orig_url):
             cookies.extract_cookies(resp, req)
 
             # update the url
-            newurl = urlparse.urljoin(url, location)
+            newurl = urllib.parse.urljoin(url, location)
             if newurl in seen:
                 log_redirect_loop(orig_url, newurl, resp)
                 return (orig_url, None)
@@ -261,7 +261,7 @@ def chase_redirects(orig_url):
                 # causes us to canonicalize blogger.com to
                 # http://www.blogger.com/ instead of
                 # https://accounts.google.com/ServiceLogin?service=blogger&...
-                components = urlparse.urlsplit(newurl)
+                components = urllib.parse.urlsplit(newurl)
                 if ((components.path and components.path != '/')
                     or components.query or components.fragment):
                     log_declined_redirect(orig_url, url, newurl, resp)
@@ -272,15 +272,15 @@ def chase_redirects(orig_url):
             # and loop
 
     # Do not allow any exceptions to escape, or the entire job will crash.
-    except httplib.HTTPException, e:
+    except http.client.HTTPException as e:
         log_http_error(orig_url, e)
         return (orig_url, None)
 
-    except EnvironmentError, e:
+    except EnvironmentError as e:
         log_env_error(orig_url, e)
         return (orig_url, None)
 
-    except Exception, e:
+    except Exception as e:
         log_gen_error(orig_url, e)
         return (orig_url, None)
 

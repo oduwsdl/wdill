@@ -5,7 +5,9 @@ import re
 import time
 from datetime import datetime
 
-import commands
+from bs4 import BeautifulSoup
+import requests
+import subprocess
 import hashlib
 from random import randint
 
@@ -109,10 +111,10 @@ def getLinks(folderName):
 		except:
 			exc_type, exc_obj, exc_tb = sys.exc_info()
 			fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-			print(fname, exc_tb.tb_lineno, sys.exc_info() )
+			print((fname, exc_tb.tb_lineno, sys.exc_info() ))
 
 #returns post id, beginYear, endYear
-def uploadAnimatedGifToTumblr(folderName, URL, queueOrPublish='queue'):
+def uploadAnimatedGifToSocialMedia(folderName, URL, queueOrPublish='queue'):
 
 	
 	folderName = folderName.strip()
@@ -136,17 +138,60 @@ def uploadAnimatedGifToTumblr(folderName, URL, queueOrPublish='queue'):
 		firstline = links[:indexOfNewLineCharacter]
 
 		beginYear, endYear = extractBeginAndEndYear(firstline)
-		gifAnimationFilename = getGifFilename(folderName)
+		#gifAnimationFilename = globalPrefix + folderName + '/' + getGifFilename(folderName)
+		mp4Filename = globalPrefix + folderName + '/' + folderName + 'WithAudio.mp4'
+		uploadFile = ""
+		if os.path.exists(mp4Filename):
+			uploadFile = mp4Filename
+		else:
+			for item in os.listdir(globalPrefix + folderName + '/'):
+				if item.endswith(".png"):
+					uploadFile = globalPrefix + folderName + '/' + item
+					break
 
-		
-		if(len(gifAnimationFilename) > 0):
-			print "...uploading to tumblr"
+		if(len(uploadFile) > 0):
+			#instagram currently doesn't support posting videos via a web browser
+			'''
+			instaScript = os.path.join(os.path.dirname(__file__), globalPrefix+'instagram.js')
+			username = getConfigParameters('instagramUsername')
+			password = getConfigParameters('instagramPassword')
+			nodeSystemPath = getConfigParameters('nodeSystemPath')
+			print("...uploading to instagram")
+			res = subprocess.check_output([nodeSystemPath, instaScript, username, password, globalPrefix + folderName + '/' + folderName + '.mp4', links])
+			instagramLink = res.decode('utf-8')
+			print(instagramLink)
+			instagramLink = instagramLink.replace('\n',"")
+			instagramLink = instagramLink.replace('Instagram Link: ','')
+			'''
 
-			postID = client.create_photo(globalBlogName, tags=[tags], state=queueOrPublish, caption=[links], data=globalPrefix + folderName + '/' + gifAnimationFilename)
+			instaScript = os.path.join(os.path.dirname(__file__), globalPrefix+'instagramWithBrowserStack.py')
+			username = getConfigParameters('instagramUsername')
+			password = getConfigParameters('instagramPassword')
+			browserStackUserID = getConfigParameters('browserStackUserID')
+			browserStackKey = getConfigParameters('browserStackKey')
+			instaAppPath = glob.glob(globalPrefix+"*.apk")[0]
+			
+			print("...uploading to Instagram")
+			pythonVirtualEnvPath = getConfigParameters('pythonVirtualEnv1Path')
+			instaCaption = links.split("\n")[0] + " #memento"
+			
+			res = subprocess.check_output([pythonVirtualEnvPath, instaScript, username, password, browserStackUserID, browserStackKey, instaAppPath, uploadFile, instaCaption])
+			
+			instagramLink = res.decode('utf-8')
+			instagramLink = instagramLink.replace('\n',"")
+			instagramLink = instagramLink.split('Instagram Link: ')[-1]
+			instagramLink = re.sub('^https?:\/\/(www\.)?', '', instagramLink.split('/?')[0])
+			print(instagramLink)
+			
+			print("...uploading to tumblr")
+			if uploadFile.endswith(".mp4"):
+				postID = client.create_video(globalBlogName, tags=[tags], state=queueOrPublish, caption=[links], data=uploadFile)
+			else:
+				postID = client.create_photo(globalBlogName, tags=[tags], state=queueOrPublish, caption=[links], data=uploadFile)
 			#write this postID to tumblrDataFile.txt
-			return postID['id'], beginYear, endYear
+			return postID['id'], beginYear, endYear, instagramLink
 
-	return -1, '', ''
+	return -1, '', '', ''
 
 def getPostDateTime(postTag):
 
@@ -179,42 +224,47 @@ def getPostID(postTag):
 
 #http://stackoverflow.com/questions/4770297/python-convert-utc-datetime-string-to-local-datetime
 def datetime_from_utc_to_local(utc_datetime):
-    now_timestamp = time.time()
-    offset = datetime.fromtimestamp(now_timestamp) - datetime.utcfromtimestamp(now_timestamp)
-    return utc_datetime + offset
+	now_timestamp = time.time()
+	offset = datetime.fromtimestamp(now_timestamp) - datetime.utcfromtimestamp(now_timestamp)
+	return utc_datetime + offset
 
 
 '''
-    input: canonicalURLHash
-    return value:
-       -1 - error
-        0 - not posted
-        1 - posted
+	input: canonicalURLHash
+	return value:
+	   -1 - error
+		0 - not posted
+		1 - posted
 '''
 def isPosted(canonicalURLHash):
 
-    
-    returnCode = 0
-    canonicalURLHash = canonicalURLHash.strip()
-    if( len(canonicalURLHash) > 0 ):
+	
+	returnCode = 0
+	canonicalURLHash = canonicalURLHash.strip()
+	if( len(canonicalURLHash) > 0 ):
 
-    	
-    	canonicalURLHash = 'http://'+globalBlogName+'/tagged/'+canonicalURLHash
-    	
+		
+		canonicalURLHash = 'https://'+globalBlogName+'/tagged/'+canonicalURLHash
+		
 
-        try:
-            co = 'curl -I -A "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.101 Safari/537.36" "'+canonicalURLHash+'"'
-            header = commands.getoutput(co)
+		try:
+			'''
+			co = 'curl -I -A "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.101 Safari/537.36" "'+canonicalURLHash+'"'
+			header = subprocess.getoutput(co)
 
-            if(header.find('HTTP/1.1 200 OK') > -1):
-                returnCode = 1
-        except:
-            returnCode = -1
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-            print(fname, exc_tb.tb_lineno, sys.exc_info() )
+			if(header.find('HTTP/1.1 200 OK') > -1):
+				returnCode = 1
+			'''
+			req = requests.get(canonicalURLHash)
+			if req.status_code == 200:
+				returnCode = 1
+		except:
+			returnCode = -1
+			exc_type, exc_obj, exc_tb = sys.exc_info()
+			fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+			print((fname, exc_tb.tb_lineno, sys.exc_info() ))
 
-    return returnCode
+	return returnCode
 
 def getRandomStatusUpdateMessage(folderNameUrl, pageTitle, beginYear, endYear, link):
 
@@ -248,7 +298,7 @@ def getRandomStatusUpdateMessage(folderNameUrl, pageTitle, beginYear, endYear, l
 		except:
 			exc_type, exc_obj, exc_tb = sys.exc_info()
 			fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-			print(fname, exc_tb.tb_lineno, sys.exc_info() )
+			print((fname, exc_tb.tb_lineno, sys.exc_info() ))
 			
 	
 	return randomMessage
@@ -259,17 +309,21 @@ def getPageTitle(url):
 	if( len(url) > 0 ):
 
 		try:
-			req = urllib2.Request(url)
+			'''
+			req = urllib.request.Request(url)
 			req.add_header('User-agent', 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.101 Safari/537.36')
 
-			response = urllib2.urlopen(req)
-			soup = BeautifulSoup(response)
+			response = urllib.request.urlopen(req)
+			'''
 
-			titleOfPage = soup.title.string
+			response = requests.get(url)
+			soup = BeautifulSoup(response.text, 'html.parser')
+
+			titleOfPage = str(soup.title.string)
 
 			#this line added because some titles contain funny characters that generate encoding errors
-			titleOfPage = titleOfPage.encode('ascii', 'ignore')
+			#titleOfPage = titleOfPage.encode('ascii', 'ignore')
 		except:
 			titleOfPage = url + '...'
 
-	return titleOfPage
+	return titleOfPage.replace("\n", "")

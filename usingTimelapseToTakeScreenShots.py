@@ -12,11 +12,11 @@ try:
 except:
 	exc_type, exc_obj, exc_tb = sys.exc_info()
 	fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-	print(fname, exc_tb.tb_lineno, sys.exc_info() )
+	print((fname, exc_tb.tb_lineno, sys.exc_info() ))
 	listOfNominatedURLs.close()
 
 
-print "read lines: ", len(nominationTuples)
+print("read lines: ", len(nominationTuples))
 originalPath = os.getcwd()
 
 for i in range(0,len(nominationTuples)):
@@ -25,19 +25,22 @@ for i in range(0,len(nominationTuples)):
 	nominationData = nominationTuples[i].split(' <> ')
 	
 	#this url has not been published
-	if( len(nominationData) < 5):
+	if( len(nominationData) < 6):
 
 		URL = nominationData[0].strip()
 		#screen_name = nomimationData[1].strip()
 		#datetime = nomimationData[2].strip()
 		#tweetID = nomimationData[3].strip()
+		dateRange = nominationData[4].strip()
+		if dateRange == '0 - 0':
+			dateRange = None
 
 		os.chdir(originalPath)
-		print "...sending ", URL, " to timelapse to take pictures"
-		timelapse(URL)
+		print("...sending "+ URL+ " to timelapse to take pictures")
+		timelapse(URL, dateRange=dateRange)
 
-print '...calling timelapseSubEngine.py'
+print('...calling timelapseSubEngine.py')
 #MOD
 os.chdir(originalPath)
 pythonVirtualEnvPath = getConfigParameters('pythonVirtualEnv1Path')
-os.system(pythonVirtualEnvPath + ' ' + globalPrefix + 'timelapseSubEngine.py &')
+os.system(pythonVirtualEnvPath + ' -u ' + globalPrefix + 'timelapseSubEngine.py &')

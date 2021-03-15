@@ -1,7 +1,7 @@
 import json
 import os, sys
 
-configFileName = '/AbsolutePathToThisConfigFileHere/config'
+configFileName = os.path.abspath(__file__).replace(__file__.split("/")[-1],"config")
 
 def getConfigParameters(keyValue):
 
@@ -16,13 +16,13 @@ def getConfigParameters(keyValue):
 			jsonFile = json.loads(config)
 			returnValue = jsonFile[keyValue]
 
-			if( type(jsonFile[keyValue]) == unicode ):
+			if( type(jsonFile[keyValue]) == str ):
 				returnValue = str(returnValue)
 
 
 		except:
 			exc_type, exc_obj, exc_tb = sys.exc_info()
 			fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-			print(fname, exc_tb.tb_lineno, sys.exc_info() )
+			print((fname, exc_tb.tb_lineno, sys.exc_info() ))
 
 	return returnValue

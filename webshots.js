@@ -5,7 +5,7 @@ the given browser resolution and save it as a PNG file.
 Written by Ramiro Gómez http://ramiro.org/
 MIT licensed: http://rg.mit-license.org/
 */
-
+var system = require('system')
 var page = require('webpage').create(),
     re_trim = /^https?:\/\/|\/$/g,
     re_conv = /[^\w\.-]/g;
@@ -314,7 +314,7 @@ var webshot = function(url, w, h, timeout, folderName, filename)
 
 // phantom.args is deprecated in favor of system.args, but version 1.4.0 does
 // not seem to support the system module.
-if (5 !== phantom.args.length) 
+if (6 !== system.args.length) 
 {
     console.log('Usage: phantomjs webshots.js http://example.com 1024 768 folderName filename');
     phantom.exit();
@@ -324,6 +324,6 @@ else
     //setTimeout(forceClose, 10000);
     //pass folder name as argument
     
-
-    webshot(phantom.args[0], phantom.args[1], phantom.args[2], 1000, phantom.args[3], phantom.args[4]);
+    
+    webshot(system.args[1], system.args[2], system.args[3], 1000, system.args[4], system.args[5]);
 }

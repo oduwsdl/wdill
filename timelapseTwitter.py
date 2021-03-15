@@ -1,13 +1,15 @@
 import tweepy
-import commands
-import httplib
+import subprocess
+import requests
 import time
 import os,sys
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import math
 from bs4 import BeautifulSoup
 from datetime import datetime
-from urlparse import urlparse
+from urllib.parse import urlparse
+import re
+from dateutil import parser
 
 from sendEmail import sendEmail, sendErrorEmail
 from timelapse import getCanonicalUrl
@@ -52,10 +54,10 @@ def expandUrl(url):
     if(len(url) > 0):
         url = url.strip()
         #http://stackoverflow.com/questions/17910493/complete-urls-in-tweepy-when-expanded-url-is-not-enough-integration-with-urllib
-        
+        '''
         try:
             url = urlparse(url)    # split URL into components
-            conn = httplib.HTTPConnection(url.hostname, url.port)
+            conn = http.client.HTTPConnection(url.hostname, url.port)
             conn.request('HEAD', url.path)            # just look at the headers
             rsp = conn.getresponse()
             if rsp.status in (301,401):               # resource moved (permanent|temporary)
@@ -65,6 +67,14 @@ def expandUrl(url):
             conn.close()
         except:
             return ''
+        '''
+        req = requests.get(url)
+        url = req.url
+
+        if len(req.history) >= 2:
+            url = req.history[1].url
+        
+        return url
 
     else:
         return ''
@@ -87,8 +97,12 @@ def checkForRequestTweetSignature(tweet):
 
         indexOfRequestHashtag = tweet.find(whatDidItLookLikeTwitterRequestHashtag)
         if(indexOfRequestHashtag > -1):
+            # convert ', ' delimited URLs to ',' delimited
+            if ', ' in tweet:
+                tweet = tweet.replace(', ', ',')
+            
             #extract url from text
-            return tweet[indexOfRequestHashtag + len(whatDidItLookLikeTwitterRequestHashtag):].split(',')
+            return tweet[indexOfRequestHashtag + len(whatDidItLookLikeTwitterRequestHashtag):].split()[0].split(',')
         else:
             return ''
     else:
@@ -104,22 +118,22 @@ def getRequestUrls():
         line = sinceIDFile.readline()
 
         if(len(line) > 1):
-            sinceIDValue = long(line)
+            sinceIDValue = int(line)
         else:
-            sinceIDValue = long('0')
+            sinceIDValue = int('0')
 
         sinceIDFile.close()
     except:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-        print(fname, exc_tb.tb_lineno, sys.exc_info() )
-        sinceIDValue = long('0')
+        print((fname, exc_tb.tb_lineno, sys.exc_info() ))
+        sinceIDValue = int('0')
         sinceIDFile.close()
 
 
     requestsRemaining = api.rate_limit_status()['resources']['search']['/search/tweets']['remaining']
     #requestsRemaining = 10
-    print "Before Request remaining: ", requestsRemaining
+    print("Before Request remaining: ", requestsRemaining)
 
     if( requestsRemaining > 0 ):
         #<user, expandedUrlsArray>
@@ -132,7 +146,7 @@ def getRequestUrls():
             
             #if tweet is present this will change the False to True, else it will remain False and Stop the loop
             isTweetPresentFlag = False
-            print "sinceIDValue: ", sinceIDValue
+            print("sinceIDValue: ", sinceIDValue)
             for tweet in tweepy.Cursor(api.search, q="%23whatdiditlooklike", since_id=sinceIDValue).items(30):
                 isTweetPresentFlag = True
                 #print "tweet_id:", tweet.id, ",", tweet.user.screen_name, " - ", tweet.text ,", ", tweet.created_at
@@ -145,19 +159,33 @@ def getRequestUrls():
                 if( tweet.id > sinceIDValue ):
                     sinceIDValue = tweet.id
 
-                print localTimeTweet, ",tweet_id:", tweet.id, ",", tweet.user.screen_name, " - ", tweet.text
-                print ""
+                print(localTimeTweet, ",tweet_id:", tweet.id, ",", tweet.user.screen_name, " - ", tweet.text)
+                print("")
+                
+                # parse dates if daterange provided
+                regexStr = r"(\d{4}(?:\-\d{2}){0,2}).+(\d{4}(?:\-\d{2}){0,2})"
+                res = re.search(regexStr, tweet.text)
+                dateRange = "0 - 0"
+                if res:
+                    try:
+                        fromD, toD = res.group(1, 2)
+                        fromDate = parser.parse(fromD)
+                        toDate = parser.parse(toD)
+                        if fromDate <= toDate:
+                            dateRange = fromD+' - '+toD
+                    except:
+                        print("Date range parsing failed")
 
                 shortTwitterUrls = checkForRequestTweetSignature(tweet.text)
                 #print "NEW TWEET TODAY, from: ", tweet.user.screen_name
-
+                print(shortTwitterUrls)
                 if(len(shortTwitterUrls) > 0):
                     for url in shortTwitterUrls:
                         potentialExpandedUrl = expandUrl(url)
 
                         #url normalization - start
-                        if( potentialExpandedUrl[-1] == '/' ):
-                            potentialExpandedUrl = potentialExpandedUrl[:-1]
+                        #if( potentialExpandedUrl[-1] == '/' ):
+                        #    potentialExpandedUrl = potentialExpandedUrl[:-1]
                         #url normalization - end
 
                         if(len(potentialExpandedUrl) > 0):
@@ -170,11 +198,11 @@ def getRequestUrls():
                                 expandedUrlsDictionary[tweet.user.screen_name] = [potentialExpandedUrl]
 
                             #add the created_at date for this tweet
-                            globalDictionaryOfTweetExtraInformation[potentialExpandedUrl] = [tweet.id, localTimeTweet]
+                            globalDictionaryOfTweetExtraInformation[potentialExpandedUrl] = [tweet.id, localTimeTweet, dateRange]
 
             
             if( isTweetPresentFlag ):
-                print '...sleeping for 15 seconds'
+                print('...sleeping for 15 seconds')
                 time.sleep(15)
                 
 
@@ -186,10 +214,10 @@ def getRequestUrls():
     except:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-        print(fname, exc_tb.tb_lineno, sys.exc_info() )
+        print((fname, exc_tb.tb_lineno, sys.exc_info() ))
         sinceIDFile.close()
 
-    print "expandedUrlsDictionary: ", expandedUrlsDictionary
+    print("expandedUrlsDictionary: ", expandedUrlsDictionary)
     return expandedUrlsDictionary
 
 def getRequestUrls_old(differenceInDaysCoefficient = 0):
@@ -197,7 +225,7 @@ def getRequestUrls_old(differenceInDaysCoefficient = 0):
     #<user, expandedUrlsArray>
     expandedUrlsDictionary = {}
 
-    for tweet in tweepy.Cursor(api.search, q="%23whatdiditlooklike").items():
+    for tweet in list(tweepy.Cursor(api.search, q="%23whatdiditlooklike").items()):
 
         #print "tweet_id:", tweet.id, ",", tweet.user.screen_name, " - ", tweet.text ,", ", tweet.created_at
         #tweet time is in UTC, so convert to local
@@ -228,7 +256,7 @@ def getRequestUrls_old(differenceInDaysCoefficient = 0):
         else:
             break
 
-    print "expandedUrlsDictionary: ", expandedUrlsDictionary
+    print("expandedUrlsDictionary: ", expandedUrlsDictionary)
     return expandedUrlsDictionary
 
 def composeEmailString(expandedUrlsDictionary):
@@ -236,7 +264,7 @@ def composeEmailString(expandedUrlsDictionary):
     if(len(expandedUrlsDictionary) > 0):
         emailString = 'Requests to whatdiditlooklike.tumblr.com\n\n'
 
-        for user, url in expandedUrlsDictionary.iteritems():
+        for user, url in expandedUrlsDictionary.items():
             emailString = emailString + user + ':\n'
 
             for u in url:
@@ -259,6 +287,26 @@ def updateStatus(statusUpdateString, screen_name = '', tweet_id = ''):
             api.update_status('@'+ screen_name + ', ' + statusUpdateString, tweet_id)
         else:
             api.update_status(statusUpdateString)
+
+def updateStatusWithMedia(statusUpdateString, filename, tweet_id = '', screen_name = ''):
+
+    screen_name = screen_name.strip()
+    tweet_id = tweet_id.strip()
+
+    if(len(statusUpdateString) > 0 and len(filename) > 0):
+        
+        res = api.media_upload(filename=filename)
+        
+        if(len(tweet_id) > 0):
+
+            tweet_id = int(tweet_id)
+
+            if len(screen_name) > 0:
+                statusUpdateString = '@'+ screen_name + ' ' + statusUpdateString
+
+            api.update_status(statusUpdateString, in_reply_to_status_id=tweet_id, media_ids=[res.media_id])
+        else:
+            api.update_status(statusUpdateString, media_ids=[res.media_id])
 
 def sendSomeoneADirectMessage(screen_name, message):
     if(len(screen_name) > 0):
@@ -347,7 +395,7 @@ def isThisURLWithinNominationDifferential_old(URL, tweetDateTime):
                 returnValue = False
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-                print(fname, exc_tb.tb_lineno, sys.exc_info() )
+                print((fname, exc_tb.tb_lineno, sys.exc_info() ))
         else:
             returnValue = True
 
@@ -406,7 +454,7 @@ def isThisURLWithinNominationDifferential(URL, tweetDateTime):
                 returnValue = False
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-                print(fname, exc_tb.tb_lineno, sys.exc_info() )
+                print((fname, exc_tb.tb_lineno, sys.exc_info() ))
         else:
             returnValue = True
 
@@ -416,7 +464,7 @@ def isThisURLWithinNominationDifferential(URL, tweetDateTime):
 def extractRequestsFromTwitter():
 
 
-    print "...getting potential requests from twitter"
+    print("...getting potential requests from twitter")
     expandedUrlsDictionary = getRequestUrls()
     
 
@@ -434,18 +482,18 @@ def extractRequestsFromTwitter():
         goAheadFlag = False
         requestsFile = open(globalRequestFilename, "a")
         #send notifications
-        for screen_name, urls in expandedUrlsDictionary.iteritems():
+        for screen_name, urls in expandedUrlsDictionary.items():
 
             for u in urls:
 
                 #globalDictionaryOfTweetExtraInformation[u][0] = tweet.id
                 #globalDictionaryOfTweetExtraInformation[u][1] = created_at_datetime
 
-                print
-                print u
+                print()
+                print(u)
 
                 #check if this post has been made already - start
-                print '...checking if post has been made already'
+                print('...checking if post has been made already')
                 goAheadFlag, dateDiff = isThisURLWithinNominationDifferential(u, str(globalDictionaryOfTweetExtraInformation[u][1]) )
                 #check if this post has been made already - end
 
@@ -462,12 +510,12 @@ def extractRequestsFromTwitter():
                 notificationMessage = ''
                 dateTime = str(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
                 if( goAheadFlag ):
-                    print '...post has not been made, composing notification message'
+                    print('...post has not been made, composing notification message')
                     notificationMessage = '@'+ screen_name + ' Your request (' + u + ', '+ pageTitle +') was received at ' + dateTime
                 else:
 
                     #TAG-MODIFICATION-ZONE
-                    print '...post HAS been made, composing notification message'
+                    print('...post HAS been made, composing notification message')
                     notificationMessage = '@'+ screen_name + ' Your request ('+ dateTime +') has already been posted. Please retry in ' + str(dateDiff) + ' days: ' + globalBlogName + '/tagged/' + getFormattedTagURL(getCanonicalUrl(u))
                     #notify user post already exist and say when post can be renominated?
 
@@ -477,21 +525,21 @@ def extractRequestsFromTwitter():
                     #MOD
                     #print '...updating status ', notificationMessage
                     #print "...sending screen_name notification of receipt"
-                    print 'msg/u/id:', notificationMessage, u, globalDictionaryOfTweetExtraInformation[u][0]
+                    print('msg/u/id:', notificationMessage, u, globalDictionaryOfTweetExtraInformation[u][0])
                     api.update_status(notificationMessage, globalDictionaryOfTweetExtraInformation[u][0])
                     
                     #send notification - end
 
                     if( goAheadFlag ):
-                        print "...writing requests to file"
+                        print("...writing requests to file")
 
-                        requestsFile.write(u + ' <> ' + screen_name + ' <> ' + str(globalDictionaryOfTweetExtraInformation[u][1]) + ' <> ' + str(globalDictionaryOfTweetExtraInformation[u][0]) + '\n')
+                        requestsFile.write(u + ' <> ' + screen_name + ' <> ' + str(globalDictionaryOfTweetExtraInformation[u][1]) + ' <> ' + str(globalDictionaryOfTweetExtraInformation[u][0]) + ' <> ' + str(globalDictionaryOfTweetExtraInformation[u][2]) + '\n')
                         
                 except:
-                    print ""
+                    print("")
                     exc_type, exc_obj, exc_tb = sys.exc_info()
                     fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-                    print(fname, exc_tb.tb_lineno, sys.exc_info() )
+                    print((fname, exc_tb.tb_lineno, sys.exc_info() ))
 
                     #MOD
                     errorMessage = (fname, exc_tb.tb_lineno, sys.exc_info() )
@@ -539,10 +587,10 @@ def main():
     extractRequestsFromTwitter()
 
     #MOD
-    print '...calling usingTimelapseToTakeScreenShots.py'
+    print('...calling usingTimelapseToTakeScreenShots.py')
 
     pythonVirtualEnvPath = getConfigParameters('pythonVirtualEnv1Path')
-    os.system(pythonVirtualEnvPath + ' ' + globalPrefix + 'usingTimelapseToTakeScreenShots.py &')
+    os.system(pythonVirtualEnvPath + ' -u ' + globalPrefix + 'usingTimelapseToTakeScreenShots.py &')
 
 
     #debug - end

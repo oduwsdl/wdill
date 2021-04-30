@@ -80,3 +80,20 @@ $ cd wdill
 $ ./setup_wdill.sh
 $ cron && tail -f /var/log/cron.log
 ```
+
+## Citing Project
+
+A tech report related to this project is available in arXiv.org ([pdf](https://arxiv.org/abs/2104.14041)). Please cite it as below:
+
+> Dhruv Patel, Alexander C. Nwala Michael L. Nelson, and Michele C. Weigle. __What Did It Look Like: A service for creating website timelapses using the Memento framework__. Technical report arXiv:2104.14041, April 2021.
+
+```bib
+@techreport{wdill-arxiv,
+  title = {{What Did It Look Like}: A service for creating website timelapses using the {Memento} framework},
+  author = {Dhruv Patel and Alexander C. Nwala and Michael L. Nelson and Michele C. Weigle},
+  year = {2021},
+  month = apr,
+  number = {arXiv:2104.14041},
+  url = {https://arxiv.org/abs/2104.14041}
+}
+```
